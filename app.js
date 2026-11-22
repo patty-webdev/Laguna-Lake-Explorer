@@ -1,5 +1,12 @@
 /* Laguna Lake Explorer — no fictional station coordinates and no live-data claims. */
 const $ = (id) => document.getElementById(id);
+const mobileLayout='(max-width:760px), (max-width:950px) and (max-height:520px)';
+function setMobilePanel(open){
+ const toggle=$('panelToggle');
+ document.body.classList.toggle('mobile-panel-open',open);
+ toggle.setAttribute('aria-expanded',String(open));
+ toggle.textContent=open?'Hide tools':'Map tools';
+}
 const toast = (message) => { const n=$('notice'); n.textContent=message; n.style.opacity='1'; clearTimeout(toast.timer); toast.timer=setTimeout(()=>n.style.opacity='0',3000); };
 const locations={
  all:{center:[121.2088,14.4551],zoom:9.8,pitch:78,bearing:-8},
@@ -96,6 +103,7 @@ function initializeMap(){
  const map=new maplibregl.Map({
   container:'map',style,...locations.all,maxPitch:78,minZoom:3,maxZoom:19,antialias:true,
   renderWorldCopies:false,maxBounds:[[94,-7],[153,32]],
+  attributionControl:window.matchMedia(mobileLayout).matches?{compact:true}:true,
   transformCameraUpdate:({zoom,pitch})=>({pitch:Math.min(pitch,pitchLimit(zoom))})
  });
  const terrainButton=$('terrain');
@@ -238,6 +246,9 @@ function initializeMap(){
 
 $('help').addEventListener('click',()=>$('helpDialog').showModal());
 $('closeHelp').addEventListener('click',()=>$('helpDialog').close());
+$('panelToggle').addEventListener('click',()=>{
+ setMobilePanel($('panelToggle').getAttribute('aria-expanded')!=='true');
+});
 function waitForPageTransition(landing,explorer){
  const animations=[...landing.getAnimations(),...explorer.getAnimations({subtree:true})
   .filter(animation=>/^explorer-(enter|exit)$/.test(animation.animationName))];
@@ -273,6 +284,7 @@ document.querySelector('.home-link').addEventListener('click',async event=>{
  document.dispatchEvent(new Event('landing:enter'));
  await waitForPageTransition(landing,explorer);
  explorer.hidden=true;
+ setMobilePanel(false);
  explorer.classList.remove('explorer-leaving');
  landing.classList.remove('landing-returning');
  const button=$('enterExplorer');

@@ -12,7 +12,7 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=compass-needle" rel="stylesheet" />
+    <link href="./styles.css?v=mobile-layout" rel="stylesheet" />
   </head>
   <body class="landing-active">
     <div id="map" aria-label="Interactive Laguna de Bay map"></div>
@@ -48,12 +48,12 @@
         </div>
         <div class="header-actions">
           <a class="ghost home-link" href="./index.html">Home</a
-          ><button id="reset" class="ghost">↺ <span>Reset view</span></button
+          ><button id="reset" class="ghost" aria-label="Reset view">↺ <span>Reset view</span></button
           ><button id="research" class="ghost">Research</button
-          ><button id="help" class="ghost">? <span>Controls</span></button>
+          ><button id="help" class="ghost" aria-label="Controls">? <span>Controls</span></button>
         </div>
       </header>
-      <aside class="sidebar">
+      <aside class="sidebar" id="explorerPanel" aria-label="Map tools and readings">
         <div class="side-kicker">EXPLORATION CONSOLE <span>01 / MAP</span></div>
         <h1>Explore the<br /><em>lake.</em></h1>
         <p class="intro">
@@ -183,6 +183,8 @@
           ><span class="divider">|</span><span class="key">+</span
           ><span class="key">−</span> <span>Zoom</span>
         </div>
+        <button id="panelToggle" class="ghost panel-toggle" type="button"
+          aria-controls="explorerPanel" aria-expanded="false">Map tools</button>
         <button
           id="qualityMode"
           class="terrain-toggle"
@@ -200,9 +202,7 @@
           ◭ <span>3D Terrain: Off</span>
         </button>
       </div>
-      <div class="notice" id="notice" role="status">
-        Ready to explore · Use WASD to move
-      </div>
+      <div class="notice" id="notice" role="status"></div>
     </div>
     <dialog id="helpDialog">
       <div class="dialog-body">
@@ -272,8 +272,8 @@
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
     <script src="./research.js?v=consolidated"></script>
-    <script src="./water-quality.js?v=original-imagery"></script>
-    <script src="./app.js?v=original-imagery"></script>
-    <script src="./tutorial.js?v=explore-transition"></script>
+    <script src="./water-quality.js?v=responsive"></script>
+    <script src="./app.js?v=mobile-fit"></script>
+    <script src="./tutorial.js?v=mobile-layout"></script>
   </body>
 </html>

@@ -179,10 +179,11 @@ function initializeQualityMap(map,overview,coverageBounds){
   if(!location)return;
   const center=location.slice(1);
   const sidebar=panel.parentElement.getBoundingClientRect();
-  const mobile=window.matchMedia('(max-width:650px)').matches;
+  const bottomSheet=window.matchMedia(mobileLayout).matches&&
+   !window.matchMedia('(orientation:landscape) and (max-height:520px)').matches;
   map.flyTo({
    center,zoom:Math.max(12,map.getZoom()),speed:.9,
-   offset:mobile?[0,-sidebar.height/2]:[sidebar.width/2,0]
+   offset:bottomSheet?[0,-sidebar.height/2]:[sidebar.width/2,0]
   });
   const feature=mappedFeatures.find(item=>item.properties.stationId===stationSelect.value);
   if(feature){
@@ -201,6 +202,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   mode.textContent=active?'Back to Explore':'Water Quality';
   panel.hidden=!active;
   document.body.classList.toggle('quality-active',active);
+  setMobilePanel(active);
   for(const id of ['quality-basemap','quality-stations'])map.setLayoutProperty(id,'visibility',active?'visible':'none');
   for(const id of ['satellite','3d-buildings'])map.setLayoutProperty(id,'visibility',active?'none':'visible');
   if(active){

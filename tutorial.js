@@ -1,15 +1,18 @@
 const tutorialSteps=[
  {
   title:'Explore Laguna de Bay',
-  targets:['.location-list','#map'],
+  targets:['.location-list','#panelToggle','#map'],
   text:'Drag the satellite map to move around and scroll to zoom. Use the lake and bay buttons in the sidebar to fly to a viewpoint.',
-  detail:'Use W, A, S, and D to move with the keyboard. Reset view returns to the lake overview.'
+  detail:'Use W, A, S, and D to move with the keyboard. Reset view returns to the lake overview.',
+  mobileText:'Drag to move around the satellite map and pinch to zoom. Open Map tools to fly to the lake and bay viewpoints.',
+  mobileDetail:'The reset button returns to the lake overview.'
  },
  {
   title:'Change the camera and terrain',
-  targets:['.mode-group','#terrain','#qualityMode'],
+  targets:['.mode-group','#panelToggle','#terrain','#qualityMode'],
   text:'The map opens in a tilted view with 3D Terrain on. Choose Top-down to look straight down, or use the 3D Terrain button to hide or show elevation.',
-  detail:'Right-drag or use Q and E to rotate. Use R and F to tilt.'
+  detail:'Right-drag or use Q and E to rotate. Use R and F to tilt.',
+  mobileDetail:'Open Map tools for the camera buttons. Twist with two fingers to rotate the map.'
  },
  {
   title:'Compare water-quality readings',
@@ -19,7 +22,7 @@ const tutorialSteps=[
  },
  {
   title:'Focus on a monitoring station',
-  targets:['#focusStation','#exploreFocusStation','#qualityMode'],
+  targets:['#focusStation','#exploreFocusStation','#panelToggle','#qualityMode'],
   text:'Choose a monitoring station and click Focus station to zoom to its location. Click a map point to see its reading, review status, and source report.',
   detail:'The Reported readings list includes stations whose coordinates are unavailable.'
  },
@@ -72,8 +75,9 @@ function initializeTutorial(){
   const current=tutorialSteps[step];
   title.textContent=current.title;
   progress.textContent=`Step ${step+1} of ${tutorialSteps.length}`;
-  $('tutorialText').textContent=current.text;
-  $('tutorialDetail').textContent=current.detail;
+  const mobile=window.matchMedia(mobileLayout).matches;
+  $('tutorialText').textContent=(mobile&&current.mobileText)||current.text;
+  $('tutorialDetail').textContent=(mobile&&current.mobileDetail)||current.detail;
   back.disabled=step===0;
   next.textContent=step===tutorialSteps.length-1?'Finish':'Next';
   currentTarget()?.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
