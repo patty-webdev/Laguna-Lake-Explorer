@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laguna Lake Explorer | Free Roam</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <link href="./styles.css?v=compass-needle" rel="stylesheet" />
+  </head>
+  <body class="landing-active">
+    <div id="map" aria-label="Interactive Laguna de Bay map"></div>
+    <main
+      id="landingScreen"
+      class="landing-screen"
+      aria-labelledby="landingTitle"
+    >
+      <div class="landing-content">
+        <div class="brand-mark landing-mark" aria-hidden="true">≈</div>
+        <h1 id="landingTitle">Laguna Lake <span>Explorer</span></h1>
+        <p class="landing-subtitle">
+          Explore Laguna de Bay in 3D and discover historical water-quality
+          readings from monitoring stations around the lake.
+        </p>
+        <button id="enterExplorer" class="landing-explore" type="button">
+          Explore
+        </button>
+      </div>
+    </main>
+    <div id="explorerUI" hidden>
+      <div class="vignette"></div>
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">≈</div>
+          <div>
+            <strong>LAGUNA LAKE <span>EXPLORER</span></strong
+            ><small>Environmental Intelligence / Free Roam</small>
+          </div>
+        </div>
+        <div class="top-center">
+          <span class="live-dot"></span><span>HISTORICAL WATER QUALITY</span>
+        </div>
+        <div class="header-actions">
+          <a class="ghost home-link" href="./index.html">Home</a
+          ><button id="reset" class="ghost">↺ <span>Reset view</span></button
+          ><button id="research" class="ghost">Research</button
+          ><button id="help" class="ghost">? <span>Controls</span></button>
+        </div>
+      </header>
+      <aside class="sidebar">
+        <div class="side-kicker">EXPLORATION CONSOLE <span>01 / MAP</span></div>
+        <h1>Explore the<br /><em>lake.</em></h1>
+        <p class="intro">
+          Navigate Laguna de Bay in free roam. Investigate reported water
+          quality readings and discover the lake's monitoring network.
+        </p>
+        <div class="stats">
+          <div>
+            <strong id="stationCount">—</strong><small>Reported stations</small>
+          </div>
+          <div>
+            <strong id="parameterCount">—</strong><small>Data parameters</small>
+          </div>
+        </div>
+        <div class="section-heading">CAMERA VIEW <span>↗</span></div>
+        <div class="mode-group">
+          <button id="view3d" class="mode active">
+            ◩ <span>3D Explore</span></button
+          ><button id="view2d" class="mode">▦ <span>Top-down</span></button>
+        </div>
+        <div class="section-heading">EXPLORE LOCATION <span>↗</span></div>
+        <div class="location-list">
+          <button data-view="all" class="location active">
+            <span>◉</span
+            ><span>Laguna de Bay<small>Overview · full lake</small></span
+            ><b>↗</b></button
+          ><button data-view="west" class="location">
+            <span>◇</span
+            ><span>West Bay<small>Geographic viewpoint</small></span
+            ><b>↗</b></button
+          ><button data-view="central" class="location">
+            <span>◇</span
+            ><span>Central Lake<small>Geographic viewpoint</small></span
+            ><b>↗</b></button
+          ><button data-view="east" class="location">
+            <span>◇</span
+            ><span>East Bay<small>Geographic viewpoint</small></span
+            ><b>↗</b></button
+          ><button data-view="philippines" class="location">
+            <span>◇</span><span>Philippines<small>Country overview</small></span
+            ><b>↗</b></button
+          ><button data-view="par" class="location">
+            <span>◇</span
+            ><span
+              >Area of Responsibility<small
+                >PAGASA weather-monitoring area</small
+              ></span
+            ><b>↗</b>
+          </button>
+        </div>
+        <div class="section-heading">MONITORING STATION DATA</div>
+        <label class="sr-only" for="stationSelect">Choose station</label
+        ><select id="stationSelect"></select
+        ><button
+          id="exploreFocusStation"
+          class="terrain-toggle explore-focus"
+          type="button"
+          disabled
+        >
+          Focus selected station</button
+        ><label class="sr-only" for="monthSelect">Choose month</label
+        ><select id="monthSelect"></select>
+        <div id="readings" class="reading-list">Loading records…</div>
+        <section id="qualityPanel" class="quality-panel" hidden>
+          <h2>Water quality</h2>
+          <label for="qualityParameter">Parameter</label
+          ><select id="qualityParameter"></select>
+          <label for="qualityMonth">Sampling month</label
+          ><select id="qualityMonth"></select>
+          <label for="qualityLayer">Map layer</label
+          ><select id="qualityLayer">
+            <option value="stations">Station readings</option>
+            <option value="heat">Relative heatmap</option>
+          </select>
+          <label for="qualityStation">Monitoring station</label
+          ><select id="qualityStation">
+            <option value="">Choose a station</option>
+          </select>
+          <button
+            id="focusStation"
+            class="terrain-toggle quality-focus"
+            type="button"
+            disabled
+          >
+            Focus station
+          </button>
+          <p id="qualityStatus" role="status">Loading historical readings…</p>
+          <div id="qualityLegend"></div>
+          <details id="qualityReadingDetails" hidden>
+            <summary id="qualityReadingSummary">Reported readings</summary>
+            <ul id="qualityReadingList"></ul>
+          </details>
+          <p class="fine">
+            Locations use
+            <a
+              href="https://www.researchgate.net/publication/349406848_Spatial_Variability_Model_for_Water_Quality_Assessment_of_the_Physicochemical_Parameters_and_the_Water_Quality_Index_of_Laguna_Lake_and_its_Tributaries"
+              target="_blank"
+              rel="noopener"
+              >historical station coordinates</a
+            >. Sampling positions may have changed.
+          </p>
+        </section>
+      </aside>
+      <div class="compass">
+        <div class="compass-dial" aria-hidden="true">
+          <div class="compass-head" id="compassHead"><span></span></div>
+        </div>
+        <small>BEARING <span id="bearing">000°</span></small>
+      </div>
+      <div class="crosshair" aria-hidden="true"><span></span><span></span></div>
+      <div class="coordinates">
+        <span>CAMERA TELEMETRY</span
+        ><strong id="coords">14.4551° N &nbsp;121.2088° E</strong
+        ><small
+          >ZOOM <span id="zoom">9.8</span> · PITCH
+          <span id="pitch">78°</span></small
+        >
+      </div>
+      <div class="hud-bottom">
+        <div class="instructions">
+          <span class="key">W</span><span class="key">A</span
+          ><span class="key">S</span><span class="key">D</span> <span>Move</span
+          ><span class="divider">|</span><span class="key">Q</span
+          ><span class="key">E</span> <span>Rotate</span
+          ><span class="divider">|</span><span class="key">R</span
+          ><span class="key">F</span> <span>Tilt</span
+          ><span class="divider">|</span><span class="key">+</span
+          ><span class="key">−</span> <span>Zoom</span>
+        </div>
+        <button
+          id="qualityMode"
+          class="terrain-toggle"
+          aria-pressed="false"
+          disabled
+        >
+          Water Quality</button
+        ><button
+          id="terrain"
+          class="terrain-toggle"
+          title="Toggle 3D elevation"
+          aria-pressed="false"
+          disabled
+        >
+          ◭ <span>3D Terrain: Off</span>
+        </button>
+      </div>
+      <div class="notice" id="notice" role="status">
+        Ready to explore · Use WASD to move
+      </div>
+    </div>
+    <dialog id="helpDialog">
+      <div class="dialog-body">
+        <div class="dialog-title">
+          Free Roam Controls
+          <button id="closeHelp" aria-label="Close">×</button>
+        </div>
+        <p>
+          Explore Laguna de Bay with satellite imagery. <br />
+          Use 3D Terrain to show elevation and Top-down for an overhead view.
+        </p>
+        <div class="shortcut-grid">
+          <span>W / S</span><strong>Forward / backward</strong><span>A / D</span
+          ><strong>Strafe left / right</strong><span>Q / E</span
+          ><strong>Rotate camera</strong><span>R / F</span
+          ><strong>Tilt up / down</strong><span>+ / −</span><strong>Zoom</strong
+          ><span>Shift</span><strong>Move faster</strong><span>Mouse</span
+          ><strong
+            >Drag to pan, right-drag to rotate and tilt, scroll to zoom</strong
+          >
+        </div>
+        <p class="fine">
+          Map needs an internet connection. Imagery credits appear on the map.
+          Water-quality readings are historical. Each reading shows its
+          validation status.
+        </p>
+        <button id="startTutorial" class="ghost" type="button">
+          Start tutorial
+        </button>
+      </div>
+    </dialog>
+    <div id="tutorialSpotlight" aria-hidden="true" hidden></div>
+    <dialog
+      id="tutorialDialog"
+      aria-labelledby="tutorialTitle"
+      aria-describedby="tutorialText"
+    >
+      <div class="dialog-body">
+        <div class="tutorial-header">
+          <span class="tutorial-name">Lake Explorer walkthrough</span
+          ><span id="tutorialProgress"></span>
+        </div>
+        <h2 id="tutorialTitle" tabindex="-1"></h2>
+        <p id="tutorialText"></p>
+        <p id="tutorialDetail"></p>
+        <div class="tutorial-actions">
+          <button id="tutorialSkip" class="ghost" type="button">
+            Skip tutorial
+          </button>
+          <div class="tutorial-navigation">
+            <button id="tutorialBack" class="ghost" type="button">Back</button>
+            <button id="tutorialNext" class="ghost tutorial-next" type="button">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+    <dialog id="researchDialog">
+      <div class="dialog-body">
+        <div class="dialog-title">
+          Research archive
+          <button id="closeResearch" aria-label="Close">×</button>
+        </div>
+        <div id="researchContents">Loading research package…</div>
+      </div>
+    </dialog>
+    <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+    <script src="./research.js?v=consolidated"></script>
+    <script src="./water-quality.js?v=original-imagery"></script>
+    <script src="./app.js?v=original-imagery"></script>
+    <script src="./tutorial.js?v=explore-transition"></script>
+  </body>
+</html>

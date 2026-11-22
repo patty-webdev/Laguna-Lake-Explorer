@@ -1,0 +1,5 @@
+source_id,available_records_in_package,parameters,status
+QWQR-2024-Q4,225,BOD;DO;nitrate;pH;phosphate,partial_extraction_not_full_archive
+QWQR-2026-Q1,96,BOD;DO,partial_extraction_not_full_archive
+QWQR-2026-Q2,96,BOD;DO,partial_extraction_not_full_archive
+AR-2025,1,BOD,partial_extraction_not_full_archive

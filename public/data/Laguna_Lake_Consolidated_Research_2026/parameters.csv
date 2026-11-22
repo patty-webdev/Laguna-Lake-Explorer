@@ -1,0 +1,9 @@
+parameter,unit,required_in_exam
+DO,mg/L,yes
+pH,pH units,yes
+BOD,mg/L,yes
+COD,mg/L,yes
+turbidity,NTU,yes
+temperature,deg C,yes
+nitrate,mg/L,yes
+phosphate,mg/L,yes

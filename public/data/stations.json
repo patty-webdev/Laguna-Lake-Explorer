@@ -1,0 +1,107 @@
+[
+  {
+    "station_id": "I",
+    "station_name": "Central West Bay",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "II",
+    "station_name": "East Bay",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "IV",
+    "station_name": "Central Bay",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "V",
+    "station_name": "Northern West Bay",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "VIII",
+    "station_name": "South Bay",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XIII",
+    "station_name": "Taytay",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XV",
+    "station_name": "San Pedro (West Bay)",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XVI",
+    "station_name": "Sta Rosa (West Bay)",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XVII",
+    "station_name": "Fish Sanctuary (Central Bay)",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XVIII",
+    "station_name": "Pagsanjan (East Bay)",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XIX",
+    "station_name": "Muntinlupa",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XX",
+    "station_name": "GEMS",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XXI",
+    "station_name": "Cardona",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XXII",
+    "station_name": "Jala-jala",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  },
+  {
+    "station_id": "XXIII",
+    "station_name": "Lumban",
+    "latitude": "",
+    "longitude": "",
+    "coordinate_status": "not_verified"
+  }
+]
