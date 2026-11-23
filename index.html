@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Laguna Lake Explorer | Free Roam</title>
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin />
+    <link rel="preconnect" href="https://s3.amazonaws.com" crossorigin />
     <link rel="icon" type="image/svg+xml" href="./public/favicon.svg" />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
@@ -13,7 +15,7 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=mobile-layout" rel="stylesheet" />
+    <link href="./styles.css?v=water-quality-factors" rel="stylesheet" />
   </head>
   <body class="landing-active">
     <div id="map" aria-label="Interactive Laguna de Bay map"></div>
@@ -55,7 +57,13 @@
         </div>
       </header>
       <aside class="sidebar" id="explorerPanel" aria-label="Map tools and readings">
-        <div class="side-kicker">EXPLORATION CONSOLE <span>01 / MAP</span></div>
+        <div class="side-kicker">EXPLORATION CONSOLE</div>
+        <nav class="console-menu" aria-label="Exploration console">
+          <button id="consoleExplore" class="mode active" type="button" aria-controls="explorationTools" aria-pressed="true">Explore</button>
+          <button id="consoleWaterQuality" class="mode" type="button" aria-controls="qualityPanel" aria-pressed="false" disabled>Water Quality</button>
+          <button id="consoleHistory" class="mode" type="button" aria-controls="historyPanel" aria-pressed="false" disabled>Historical Trends</button>
+        </nav>
+        <section id="explorationTools">
         <h1>Explore the<br /><em>lake.</em></h1>
         <p class="intro">
           Navigate Laguna de Bay in free roam. Investigate reported water
@@ -118,6 +126,7 @@
         ><label class="sr-only" for="monthSelect">Choose month</label
         ><select id="monthSelect"></select>
         <div id="readings" class="reading-list">Loading records…</div>
+        </section>
         <section id="qualityPanel" class="quality-panel" hidden>
           <h2>Water quality</h2>
           <label for="qualityParameter">Parameter</label
@@ -143,6 +152,7 @@
           </button>
           <p id="qualityStatus" role="status">Loading historical readings…</p>
           <div id="qualityLegend"></div>
+          <button id="qualityFactorsLink" type="button" aria-haspopup="dialog">What affects this parameter?</button>
           <details id="qualityReadingDetails" hidden>
             <summary id="qualityReadingSummary">Reported readings</summary>
             <ul id="qualityReadingList"></ul>
@@ -156,6 +166,24 @@
               >historical station coordinates</a
             >. Sampling positions may have changed.
           </p>
+        </section>
+        <section id="historyPanel" class="quality-panel quality-history" hidden>
+          <h2>Historical Trends</h2>
+          <p>Select a station on the map or from the list.</p>
+          <label for="historyStation">Monitoring station</label>
+          <select id="historyStation">
+            <option value="">Choose a station</option>
+          </select>
+          <label for="historyParameter">Parameter</label>
+          <select id="historyParameter"></select>
+          <p id="qualityHistoryStatus" role="status">Loading historical readings…</p>
+          <canvas id="qualityHistoryChart" width="600" height="270" role="img"
+            aria-label="Historical monthly readings for the selected station and parameter"
+            aria-describedby="qualityHistoryStatus" hidden></canvas>
+          <details id="qualityHistoryDetails" hidden>
+            <summary>Historical readings and sources</summary>
+            <ul id="qualityHistoryList"></ul>
+          </details>
         </section>
       </aside>
       <div class="compass">
@@ -187,13 +215,6 @@
         <button id="panelToggle" class="ghost panel-toggle" type="button"
           aria-controls="explorerPanel" aria-expanded="false">Map tools</button>
         <button
-          id="qualityMode"
-          class="terrain-toggle"
-          aria-pressed="false"
-          disabled
-        >
-          Water Quality</button
-        ><button
           id="terrain"
           class="terrain-toggle"
           title="Toggle 3D elevation"
@@ -268,13 +289,18 @@
           Research archive
           <button id="closeResearch" aria-label="Close">×</button>
         </div>
+        <details id="researchFactors">
+          <summary>What affects water quality?</summary>
+          <p>These factors are documented for Laguna de Bay. Identifying the cause of an individual reading requires additional evidence.</p>
+          <div id="researchFactorCards"></div>
+        </details>
         <div id="researchContents">Loading research package…</div>
       </div>
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
-    <script src="./research.js?v=consolidated"></script>
-    <script src="./water-quality.js?v=responsive"></script>
-    <script src="./app.js?v=mobile-fit"></script>
-    <script src="./tutorial.js?v=mobile-layout"></script>
+    <script src="./research.js?v=water-quality-factors"></script>
+    <script src="./water-quality.js?v=history-focus"></script>
+    <script src="./app.js?v=landing-zoom"></script>
+    <script src="./tutorial.js?v=console-only"></script>
   </body>
 </html>

@@ -9,20 +9,20 @@ const tutorialSteps=[
  },
  {
   title:'Change the camera and terrain',
-  targets:['.mode-group','#panelToggle','#terrain','#qualityMode'],
+  targets:['.mode-group','#panelToggle','#terrain','#consoleWaterQuality'],
   text:'The map opens in a tilted view with 3D Terrain on. Choose Top-down to look straight down, or use the 3D Terrain button to hide or show elevation.',
   detail:'Right-drag or use Q and E to rotate. Use R and F to tilt.',
   mobileDetail:'Open Map tools for the camera buttons. Twist with two fingers to rotate the map.'
  },
  {
   title:'Compare water-quality readings',
-  targets:['#qualityMode'],
-  text:'Open Water Quality for a flat map. Pick a parameter and sampling month, then choose Station readings or Relative heatmap.',
-  detail:'Station colors show reported values. The heatmap shows relative intensity around mapped stations.'
+  targets:['#consoleWaterQuality','#panelToggle'],
+  text:'Choose Water Quality in the Exploration Console for a flat map. Pick a parameter and sampling month, then choose Station readings or Relative heatmap.',
+  detail:'Station colors show how individual readings compare with the Class C guideline. The heatmap shows relative intensity around mapped stations.'
  },
  {
   title:'Focus on a monitoring station',
-  targets:['#focusStation','#exploreFocusStation','#panelToggle','#qualityMode'],
+  targets:['#focusStation','#exploreFocusStation','#panelToggle','#consoleWaterQuality'],
   text:'Choose a monitoring station and click Focus station to zoom to its location. Click a map point to see its reading, review status, and source report.',
   detail:'The Reported readings list includes stations whose coordinates are unavailable.'
  },

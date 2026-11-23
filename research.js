@@ -41,7 +41,7 @@ function loadResearch(){
   const months=[...new Set(monthly.map(record=>record.period))].sort().reverse();
   const stations=new Map(registry.map(station=>[station.station_id,station]));
   for(const record of monthly)stations.set(record.station_id,record);
-  return {monthly,annual,months,parameters,stations,registry,sources,coverage,stationCounts};
+  return {measurements,monthly,annual,months,parameters,stations,registry,sources,coverage,stationCounts};
  }).catch(error=>{
   researchRequest=undefined;
   throw error;
@@ -68,10 +68,164 @@ function readingSource(record){
  return researchLink(page?`${record.source_url}#page=${page}`:record.source_url,page?`LLDA report, p. ${page}`:'LLDA report');
 }
 
-function renderResearchArchive({monthly,annual,registry,sources,coverage,stationCounts}){
+const waterQualityFactors=[
+ {
+  title:'Household and industrial waste',
+  parameters:['BOD','COD','DO'],
+  description:'LLDA identifies household waste, industrial discharges, and land runoff as sources of oxygen demand in the lake. As organic material breaks down, it consumes dissolved oxygen.',
+  source:'https://llda.gov.ph/the-water-mondriaan/',
+  sourceTitle:'LLDA Water Mondriaan'
+ },
+ {
+  title:'Nutrient inputs from the watershed',
+  parameters:['nitrate','phosphate','DO'],
+  description:'Domestic waste, agricultural runoff, and industrial waste can carry nutrients into the lake. Extra nitrogen and phosphorus can fuel algal blooms, which can reduce dissolved oxygen as they decay.',
+  source:'https://llda.gov.ph/advisory-on-algal-bloom-in-laguna-de-bay/',
+  sourceTitle:'LLDA advisory on nutrient inputs and algal blooms'
+ },
+ {
+  title:'Warm, calm conditions and algal blooms',
+  parameters:['temperature','DO','pH'],
+  description:'LLDA links warm, calm conditions to faster algal growth. Dense blooms can draw down oxygen at night, and LLDA reports that lake pH has risen during peak blooms.',
+  source:'https://llda.gov.ph/laguna-de-bay-algal-bloom-advisory/',
+  sourceTitle:'LLDA algal bloom monitoring advisory',
+  additionalSource:'https://llda.gov.ph/laguna-de-bay/'
+ },
+ {
+  title:'Wind and suspended sediment',
+  parameters:['turbidity'],
+  description:'Strong winds can stir sediment off the shallow lakebed, increasing turbidity. LLDA notes that this can be especially pronounced during typhoons.',
+  source:'https://llda.gov.ph/laguna-de-bay/',
+  sourceTitle:'LLDA Laguna de Bay profile'
+ }
+];
+
+function renderWaterQualityFactors(parameter=''){
+ const root=document.getElementById('researchFactorCards');
+ const factors=waterQualityFactors.filter(item=>!parameter||item.parameters.includes(parameter));
+ root.replaceChildren();
+ if(parameter){
+  const heading=researchElement('p','Factors related to '+researchLabels[parameter]);
+  heading.tabIndex=-1;
+  const reset=researchElement('button','Show all factors');
+  reset.type='button';
+  reset.className='ghost';
+  reset.addEventListener('click',()=>{
+   renderWaterQualityFactors();
+   document.querySelector('#researchFactors summary').focus();
+  });
+  root.append(heading,reset);
+ }
+ for(const item of factors){
+  const card=researchElement('article');
+  card.className='research-factor-card';
+  card.append(researchElement('h3',item.title),
+   researchElement('small',item.parameters.map(key=>researchLabels[key]).join(' / ')),
+   researchElement('p',item.description),researchLink(item.source,item.sourceTitle));
+  if(item.additionalSource)card.append(researchLink(item.additionalSource,'LLDA lake profile and pH observations'));
+  root.append(card);
+ }
+}
+
+renderWaterQualityFactors();
+document.getElementById('qualityFactorsLink').addEventListener('click',()=>{
+ const parameter=document.getElementById('qualityParameter').value;
+ renderWaterQualityFactors(parameter);
+ const section=document.getElementById('researchFactors');
+ section.open=true;
+ document.getElementById('researchDialog').showModal();
+ (document.querySelector('#researchFactorCards p[tabindex]')||section.querySelector('summary')).focus();
+});
+document.getElementById('researchDialog').addEventListener('close',()=>renderWaterQualityFactors());
+
+function researchDataBrowser({measurements,parameters,registry,sources,coverage,stationCounts}){
+ const datasets=[
+  ['Measurements','measurements_all.csv',measurements],
+  ['Parameters','parameters.csv',parameters],
+  ['2024 station register','stations_2024.csv',registry],
+  ['Source inventory','source_inventory.csv',sources],
+  ['Extraction coverage','coverage_summary.csv',coverage],
+  ['Reported station counts','station_counts_by_year.csv',stationCounts]
+ ];
+ const browser=researchElement('details');
+ const selection=researchElement('select');
+ selection.id='researchDataset';
+ const selectionLabel=researchElement('label','Dataset');
+ selectionLabel.htmlFor=selection.id;
+ for(const [title,file] of datasets)selection.add(new Option(title,file));
+ const search=researchElement('input');
+ search.type='search';
+ search.id='researchDataSearch';
+ const searchLabel=researchElement('label','Search rows');
+ searchLabel.htmlFor=search.id;
+ const status=researchElement('p');
+ status.setAttribute('role','status');
+ const scroll=researchElement('div');
+ scroll.className='research-data-scroll';
+ scroll.tabIndex=0;
+ scroll.setAttribute('role','region');
+ scroll.setAttribute('aria-label','Dataset table');
+ browser.append(researchElement('summary','Browse consolidated data'),selectionLabel,selection,
+  searchLabel,search,status,scroll);
+
+ function renderTable(){
+  const [title,,records]=datasets.find(([,file])=>file===selection.value);
+  const columns=[...new Set(records.flatMap(Object.keys))];
+  const query=search.value.trim().toLowerCase();
+  const matches=records.filter(record=>Object.values(record).some(value=>String(value??'').toLowerCase().includes(query)));
+  status.textContent=matches.length+' of '+records.length+' rows';
+  const table=researchElement('table');
+  table.append(researchElement('caption',title));
+  const headings=table.createTHead().insertRow();
+  for(const column of columns){
+   const cell=researchElement('th',column.replaceAll('_',' '));
+   cell.scope='col';
+   headings.append(cell);
+  }
+  const body=table.createTBody();
+  for(const record of matches){
+   const row=body.insertRow();
+   for(const column of columns){
+    const cell=row.insertCell();
+    const value=record[column]??'';
+    if(typeof value==='string'&&/^https?:[/][/]/.test(value)){
+     cell.append(researchLink(value,column.replaceAll('_',' ')));
+    }else{
+     cell.textContent=value;
+    }
+   }
+  }
+  scroll.replaceChildren(table);
+ }
+
+ selection.addEventListener('change',()=>{
+  search.value='';
+  renderTable();
+ });
+ search.addEventListener('input',renderTable);
+ browser.addEventListener('toggle',()=>{
+  if(browser.open&&!scroll.firstChild)renderTable();
+ });
+
+ const downloads=researchElement('details');
+ downloads.append(researchElement('summary','Download package files'));
+ const files=researchElement('ul');
+ for(const file of [...datasets.map(([,file])=>file),'measurements_all.json','README.md']){
+  const row=researchElement('li');
+  const link=researchLink(researchDirectory+file,file);
+  link.download=file;
+  row.append(link);
+  files.append(row);
+ }
+ downloads.append(files);
+ return [browser,downloads];
+}
+
+function renderResearchArchive(dataset){
+ const {monthly,annual,registry,sources,coverage,stationCounts}=dataset;
  const root=$('researchContents');
  root.replaceChildren(researchElement('p',`${monthly.length} monthly station readings and ${annual.length} lake-wide annual average. The archive inventory includes reports with no extracted readings.`));
- root.append(researchElement('h3','Lake-wide annual averages'));
+ root.append(...researchDataBrowser(dataset),researchElement('h3','Lake-wide annual averages'));
  for(const record of annual){
   const row=researchElement('p',`${record.period} · ${record.parameter} · ${record.reported_value} ${record.unit} · ${validationLabels[record.validation_status]} `);
   row.append(readingSource(record));
