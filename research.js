@@ -105,9 +105,9 @@ function renderWaterQualityFactors(parameter=''){
  const factors=waterQualityFactors.filter(item=>!parameter||item.parameters.includes(parameter));
  root.replaceChildren();
  if(parameter){
-  const heading=researchElement('p','Factors related to '+researchLabels[parameter]);
+  const heading=researchElement('p',researchLabels[parameter]+' / Possible causes of unusual readings');
   heading.tabIndex=-1;
-  const reset=researchElement('button','Show all factors');
+  const reset=researchElement('button','Show all possible causes');
   reset.type='button';
   reset.className='ghost';
   reset.addEventListener('click',()=>{

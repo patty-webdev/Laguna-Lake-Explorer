@@ -152,7 +152,7 @@
           </button>
           <p id="qualityStatus" role="status">Loading historical readings…</p>
           <div id="qualityLegend"></div>
-          <button id="qualityFactorsLink" type="button" aria-haspopup="dialog">What affects this parameter?</button>
+          <button id="qualityFactorsLink" type="button" aria-haspopup="dialog">What can cause an unusual reading?</button>
           <details id="qualityReadingDetails" hidden>
             <summary id="qualityReadingSummary">Reported readings</summary>
             <ul id="qualityReadingList"></ul>
@@ -290,15 +290,15 @@
           <button id="closeResearch" aria-label="Close">×</button>
         </div>
         <details id="researchFactors">
-          <summary>What affects water quality?</summary>
-          <p>These factors are documented for Laguna de Bay. Identifying the cause of an individual reading requires additional evidence.</p>
+          <summary>Possible causes of water anomalies</summary>
+          <p>LLDA documents these factors as possible explanations for unusual readings in Laguna de Bay. Identifying the cause of a specific event requires evidence from the same place and time.</p>
           <div id="researchFactorCards"></div>
         </details>
         <div id="researchContents">Loading research package…</div>
       </div>
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
-    <script src="./research.js?v=water-quality-factors"></script>
+    <script src="./research.js?v=water-anomalies"></script>
     <script src="./water-quality.js?v=history-focus"></script>
     <script src="./app.js?v=landing-zoom"></script>
     <script src="./tutorial.js?v=console-only"></script>
