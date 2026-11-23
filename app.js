@@ -19,6 +19,7 @@ const parBounds = [115, 5, 135, 25];
 const coverageBounds = [114.27, 4.58, 135, 25];
 const closeUpZoom = 10.7;
 const landingCamera = { center: [121.25, 14.33], zoom: 9.5, pitch: 75, bearing: locations.all.bearing };
+const landingPadding = () => ({ left: Math.min(440, window.innerWidth * 0.42), right: 0, top: 0, bottom: 0 });
 function pitchLimit(zoom) {
   const progress = Math.max(0, Math.min(1, (zoom - locations.all.zoom) / (closeUpZoom - locations.all.zoom)));
   return locations.all.pitch - 30 * progress;
@@ -48,6 +49,7 @@ function wireLandingCamera(map) {
     map.off('idle', rotate);
     map.off('moveend', rotate);
     map.stop();
+    map.setPadding({ left: 0, right: 0, top: 0, bottom: 0 });
     map.easeTo({ ...locations.all, duration: motion.matches ? 0 : 1100 });
     canvas.tabIndex = tabIndex;
   });
@@ -114,6 +116,7 @@ function initializeMap() {
       return { pitch: Math.min(pitch, onLanding ? landingCamera.pitch : pitchLimit(zoom)) };
     }
   });
+  map.setPadding(landingPadding());
   const terrainButton = $('terrain');
   const updateHUD = () => {
     const center = map.getCenter();
@@ -144,8 +147,8 @@ function initializeMap() {
     setActiveView(false);
     document.querySelector('[data-view].active')?.classList.remove('active');
     document.querySelector('[data-view="all"]').classList.add('active');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    map.easeTo({ ...landingCamera, duration: reduceMotion ? 0 : 1100 });
+    map.setPadding(landingPadding());
+    map.jumpTo(landingCamera);
   });
 
   function setActiveView(topDown) {
