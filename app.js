@@ -216,7 +216,7 @@ function initializeMap() {
   const controlKeys = new Set(['w', 'a', 's', 'd', 'q', 'e', 'r', 'f', '+', '-', '=', '_', 'shift', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright']);
   window.addEventListener('keydown', event => {
     if ($('explorerUI').hidden || $('explorerUI').inert) return;
-    if (event.ctrlKey || event.metaKey || event.altKey || event.target.closest?.('input,select,textarea,dialog')) return;
+    if (event.ctrlKey || event.metaKey || event.altKey || event.target.closest?.('input,select,textarea,dialog,#explorerPanel')) return;
     const key = event.key.toLowerCase();
     if (!controlKeys.has(key)) return;
     if (key !== 'shift') event.preventDefault();
@@ -258,7 +258,15 @@ function initializeMap() {
 $('help').addEventListener('click', () => $('helpDialog').showModal());
 $('closeHelp').addEventListener('click', () => $('helpDialog').close());
 $('panelToggle').addEventListener('click', () => {
-  setMobilePanel($('panelToggle').getAttribute('aria-expanded') !== 'true');
+  const open = $('panelToggle').getAttribute('aria-expanded') !== 'true';
+  setMobilePanel(open);
+  if (open) $('explorerPanel').querySelector('.console-menu [aria-pressed="true"]')?.focus({ preventScroll: true });
+});
+$('explorerPanel').addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || !window.matchMedia(mobileLayout).matches ||
+      $('panelToggle').getAttribute('aria-expanded') !== 'true') return;
+  setMobilePanel(false);
+  $('panelToggle').focus({ preventScroll: true });
 });
 function waitForPageTransition(landing, explorer) {
   const animations = [...landing.getAnimations(), ...explorer.getAnimations({ subtree: true })
