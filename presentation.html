@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laguna Lake Explorer | Project Presentation</title>
+  <link rel="icon" href="./public/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css?v=presentation" />
+  <style>
+    body.presentation{background:#091a20;color:#e9f5f4;overflow:auto}
+    .deck{width:min(100%,78rem);margin:auto;padding:clamp(16px,3vw,38px)}
+    body.presentation:fullscreen{overflow:auto}
+    .deck-header,.deck-navigation{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .deck-navigation[hidden]{display:none}
+    .deck-header{margin-bottom:18px}
+    .deck-header a,.deck-action{color:#a6f3c6;font-weight:700}
+    .deck-header p{margin:0;color:#a9c8cd;font-size:.85rem}
+    .slide{min-height:min(60vh,36rem);padding:clamp(22px,6vw,72px);margin-bottom:16px;border:1px solid #42656e;border-radius:18px;background:linear-gradient(140deg,#153a40,#0c2630 65%)}
+    .slide[hidden],#deckFullscreen[hidden]{display:none}
+    .slide{position:relative;min-height:min(67svh,42rem);display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+    .slide::before{content:'';position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#a6f3c6,#278e86,transparent)}
+    .slide-title{background:radial-gradient(ellipse at 85% 5%,#255858,transparent 55%),linear-gradient(125deg,#143c42,#091f29)}
+    .slide-title h1{font-size:clamp(3.1rem,8vw,7.4rem);line-height:.98;max-width:10ch}
+    .slide .deck-course{margin-top:18px;font-weight:700;color:#a6f3c6}
+    .slide-technical{justify-content:flex-start}
+    .deck-endpoints{display:grid;gap:8px;margin:0 0 14px}
+    .deck-endpoints>div{display:grid;grid-template-columns:minmax(9rem,1fr) minmax(0,3fr);gap:4px 16px;padding:10px 12px;border-radius:8px;background:#0c2630}
+    .deck-endpoints dt{color:#a6f3c6;font-weight:700}
+    .deck-endpoints dd{margin:0;color:#bdd6d7}
+    .deck-endpoints code{display:block;color:#e7f5f4;overflow-wrap:anywhere;font-size:.83rem}
+    .deck-code-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .deck-code-grid pre{max-height:16rem;margin:0 0 12px;padding:12px;overflow:auto;border:1px solid #42656e;border-radius:8px;background:#081b22;color:#c9f6d9;font-size:.8rem;line-height:1.5}
+    @media(max-width:690px){
+      .deck-code-grid,.deck-endpoints>div{grid-template-columns:1fr}
+      .slide{min-height:min(60svh,32rem)}
+    }
+    .slide h1,.slide h2{margin:0 0 .55em;font:700 clamp(2rem,5vw,4rem)/1.06 'Space Grotesk',sans-serif;letter-spacing:-.025em}
+    .slide h1 span,.slide h3{color:#a6f3c6}
+    .slide h3{margin:0 0 6px;font-size:1.05em}
+    .slide p,.slide li{font-size:clamp(.95rem,2.1vw,1.3rem);line-height:1.55}
+    .slide p{margin:0 0 14px}
+    .slide li+li{margin-top:10px}
+    .slide ul,.slide ol{padding-inline-start:1.25em}
+    .slide .deck-byline,.slide .slide-source{color:#b2ced0;font-size:.9rem}
+    .slide a{color:#a6f3c6}
+    .deck-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px;margin:18px 0}
+    .deck-grid>div{padding:14px;border:1px solid #42656e;border-radius:10px;background:#0c2630}
+    .deck-grid p:last-child{margin-bottom:0}
+    .deck-grid strong{display:block;color:#a6f3c6;font-size:1.45rem}
+    .deck-navigation button{min-height:44px}
+    .deck-navigation button:disabled{opacity:.5;cursor:default}
+    .deck-navigation select{width:auto;max-width:100%;margin:0;min-height:44px}
+    .deck-controls{display:flex;gap:8px}
+    .deck-counter{color:#a9c8cd;font-variant-numeric:tabular-nums}
+    .slide :focus-visible,.deck :focus-visible{outline:2px solid #a6f3c6;outline-offset:3px}
+    @media print{
+      body.presentation{background:white;color:black}
+      .deck{max-width:none;padding:0}
+      .deck-header,.deck-navigation{display:none}
+      .slide,.slide[hidden]{display:block;break-after:page;min-height:0;background:white;border:0;color:black;margin:0;padding:24px}
+      .slide:last-of-type{break-after:auto}
+      .slide :is(h1 span,h3,a,.deck-byline,.slide-source,.deck-grid strong){color:#183a38}
+      .deck-grid>div,.deck-endpoints>div,.deck-code-grid pre{background:white;border-color:#aaa}
+      .slide::before{display:none}
+      .slide .deck-course,.deck-endpoints :is(dt,dd,code),.deck-code-grid pre{color:#183a38}
+      .deck-code-grid pre{max-height:none;white-space:pre-wrap;overflow-wrap:anywhere}
+    }
+  </style>
+</head>
+<body class="presentation">
+  <main class="deck">
+    <header class="deck-header">
+      <a href="./index.html">Back to Laguna Lake Explorer</a>
+      <button id="deckFullscreen" class="ghost" type="button" hidden>Full screen</button>
+    </header>
+
+    <section class="slide slide-title" aria-labelledby="slide-title">
+      <h1 id="slide-title" tabindex="-1">Laguna Lake <span>Explorer</span></h1>
+      <p>An interactive map and historical water-quality archive for Laguna de Bay.</p>
+      <p class="deck-course">WITM 101 Advanced Web Design and Programming</p>
+      <p class="deck-byline">Patrick A. Cueto, Mike Angelo Monzon, and Christine Villanueva</p>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-purpose">
+      <h2 id="slide-purpose" tabindex="-1">What does the app help us do?</h2>
+      <div class="deck-grid">
+        <div><h3>Explore the lake</h3><p>Navigate bays and surrounding areas using satellite imagery and 3D terrain.</p></div>
+        <div><h3>Inspect measurements</h3><p>See what LLDA reported for a station, parameter, and sampling month.</p></div>
+        <div><h3>Compare over time</h3><p>Follow historical station readings and trace them back to report pages.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-map">
+      <h2 id="slide-map" tabindex="-1">How the map is integrated</h2>
+      <p>MapLibre GL JS renders the map in the browser. Our JavaScript configures the tile sources, layers, camera, and station interactions.</p>
+      <div class="deck-grid">
+        <div><h3>Basemaps</h3><p>Esri World Imagery for Explore and OpenStreetMap for Water Quality.</p></div>
+        <div><h3>3D layers</h3><p>AWS Terrain Tiles for elevation and OpenFreeMap for building footprints.</p></div>
+        <div><h3>Data overlays</h3><p>Bundled GeoJSON for the regional mask and station points generated from historical coordinates.</p></div>
+      </div>
+      <p class="slide-source">The site is static. The browser requests external map tiles and loads the bundled research files over HTTP.</p>
+    </section>
+
+    <section class="slide slide-technical" aria-labelledby="slide-endpoints">
+      <h2 id="slide-endpoints" tabindex="-1">Map libraries and endpoints</h2>
+      <dl class="deck-endpoints">
+        <div><dt>MapLibre GL JS 5.6.2</dt><dd>Browser map library<code>https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js</code></dd></div>
+        <div><dt>Esri World Imagery</dt><dd>Satellite raster tiles<code>https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}</code></dd></div>
+        <div><dt>OpenStreetMap</dt><dd>Water Quality raster tiles<code>https://tile.openstreetmap.org/{z}/{x}/{y}.png</code></dd></div>
+        <div><dt>AWS Terrain Tiles</dt><dd>Terrarium elevation tiles<code>https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png</code></dd></div>
+        <div><dt>OpenFreeMap</dt><dd>Vector tiles and building footprints<code>https://tiles.openfreemap.org/planet</code></dd></div>
+      </dl>
+      <p class="slide-source">Tile templates use zoom, column, and row coordinates. Esri orders them as row then column.</p>
+    </section>
+
+    <section class="slide slide-technical" aria-labelledby="slide-code">
+      <h2 id="slide-code" tabindex="-1">Map integration in code</h2>
+      <div class="deck-code-grid">
+        <div>
+          <h3>Map initialization</h3>
+          <p class="slide-source">The camera starts at the landing view and applies the pitch limit for the current mode.</p>
+          <pre tabindex="0" aria-label="MapLibre constructor from app.js"><code>const map = new maplibregl.Map({
+    container: 'map', style, ...landingCamera, maxPitch: 78, minZoom: 3, maxZoom: 19, antialias: true,
+    renderWorldCopies: false, maxBounds: [[94, -7], [153, 32]],
+    attributionControl: window.matchMedia(mobileLayout).matches ? { compact: true } : true,
+    transformCameraUpdate: ({ zoom, pitch }) =&gt; {
+      const explorer = $('explorerUI');
+      const onLanding = explorer.hidden || explorer.classList.contains('explorer-leaving');
+      return { pitch: Math.min(pitch, onLanding ? landingCamera.pitch : pitchLimit(zoom)) };
+    }
+  });</code></pre>
+        </div>
+        <div>
+          <h3>Satellite source</h3>
+          <p class="slide-source">The raster source specifies the exact Esri endpoint, tile size, zoom limit, bounds, and attribution.</p>
+          <pre tabindex="0" aria-label="Esri raster source from app.js"><code>satellite: {
+        type: 'raster',
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256, maxzoom: 19, bounds: coverageBounds,
+        attribution: 'Imagery © &lt;a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9"&gt;Esri&lt;/a&gt;, Vantor, Earthstar Geographics, and the GIS User Community'
+      }</code></pre>
+        </div>
+      </div>
+      <p class="slide-source">Excerpts from <a href="./app.js">app.js</a>. The flat Water Quality raster source is configured in <a href="./water-quality.js">water-quality.js</a>.</p>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-explore">
+      <h2 id="slide-explore" tabindex="-1">Explore and navigate</h2>
+      <ul>
+        <li>The landing map rotates at a 75-degree pitch, with terrain on and zoom set to 9.5.</li>
+        <li>The Exploration Console offers 3D and top-down views, an elevation toggle, and shortcuts to the lake and its bays.</li>
+        <li>The regional views show the Philippines and the PAGASA Area of Responsibility.</li>
+      </ul>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-quality">
+      <h2 id="slide-quality" tabindex="-1">Water Quality map</h2>
+      <ul>
+        <li>Choose a parameter and month, then select a station to see all eight configured parameters and their available values.</li>
+        <li>Green and red indicate how an eligible reading compares with the DENR Class C guideline. Gray means the reading was unassessed.</li>
+        <li>The heatmap shows relative intensity around mapped readings. It can extend beyond the shoreline.</li>
+      </ul>
+      <p class="slide-source"><a href="https://r9.emb.gov.ph/wp-content/uploads/2025/08/ANNUAL-REGIONAL-WATER-QUALITY-STATUS-REPORT-2023.pdf">DENR guideline reference</a></p>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-trends">
+      <h2 id="slide-trends" tabindex="-1">Historical Trends and Research</h2>
+      <div class="deck-grid">
+        <div><h3>Historical Trends</h3><p>Select a station on the map or in the dropdown to update the graph. Gaps show months without an exact numeric reading.</p></div>
+        <div><h3>Research archive</h3><p>Search measurements, inspect coverage, review source references, and download the original package files.</p></div>
+        <div><h3>Water anomalies</h3><p>LLDA sources describe possible causes such as nutrient inputs, algal blooms, and wind-driven sediment. A specific event needs its own evidence.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-ai">
+      <h2 id="slide-ai" tabindex="-1">AI-assisted data gathering</h2>
+      <ol>
+        <li><strong>Find sources.</strong> Use AI to help organize candidate LLDA reports and identify relevant tables.</li>
+        <li><strong>Structure the records.</strong> Transcribe station, month, parameter, value, unit, and report page into a consistent format.</li>
+        <li><strong>Check the original.</strong> Compare transcriptions with the report, keep qualifiers such as &lt;0.1, and flag entries that still need review.</li>
+        <li><strong>Publish the package.</strong> Store records as JSON and CSV alongside a source inventory and coverage summary.</li>
+      </ol>
+      <p class="slide-source">LLDA reports are the source of the measurements. The data package records where manual review is still pending. <a href="./public/data/Laguna_Lake_Consolidated_Research_2026/README.md">Research package notes</a></p>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-coverage">
+      <h2 id="slide-coverage" tabindex="-1">What the dataset covers</h2>
+      <div class="deck-grid">
+        <div><strong>225 readings</strong><p>October to December 2024 across five parameters.</p></div>
+        <div><strong>192 readings</strong><p>January to June 2026 for dissolved oxygen and BOD.</p></div>
+        <div><strong>1 annual average</strong><p>Lake-wide BOD for 2025.</p></div>
+      </div>
+      <p>The monthly transcriptions carry review flags. Nine stations have historical map coordinates, and the archive includes references for reports with no extracted readings.</p>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-demo">
+      <h2 id="slide-demo" tabindex="-1">Live demo</h2>
+      <ol>
+        <li>Open Explore and fly to one of the lake viewpoints.</li>
+        <li>Open Water Quality and choose a station to inspect its reported values and source.</li>
+        <li>Open Historical Trends and select a different station to update the chart.</li>
+        <li>Open Research to show the searchable data and possible causes of unusual readings.</li>
+      </ol>
+      <a class="deck-action" href="./index.html">Open Laguna Lake Explorer</a>
+    </section>
+
+    <nav class="deck-navigation" aria-label="Slide controls" hidden>
+      <label for="slidePicker">Go to slide
+        <select id="slidePicker"></select>
+      </label>
+      <span id="slideCounter" class="deck-counter" aria-live="polite"></span>
+      <div class="deck-controls">
+        <button class="ghost" id="previousSlide" type="button">Previous</button>
+        <button class="ghost" id="nextSlide" type="button">Next</button>
+      </div>
+    </nav>
+  </main>
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const picker = document.getElementById('slidePicker');
+    const previous = document.getElementById('previousSlide');
+    const next = document.getElementById('nextSlide');
+    const counter = document.getElementById('slideCounter');
+    let current = 0;
+    const fullscreen = document.getElementById('deckFullscreen');
+    if (document.fullscreenEnabled) {
+      fullscreen.hidden = false;
+      fullscreen.addEventListener('click', async () => {
+        try {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          else await document.body.requestFullscreen();
+        } catch {
+          fullscreen.hidden = true;
+        }
+      });
+      document.addEventListener('fullscreenchange', () => {
+        fullscreen.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+      });
+    }
+
+    slides.forEach((slide, index) => {
+      picker.add(new Option((index + 1) + '. ' + slide.querySelector('h1,h2').textContent, index));
+    });
+
+    function showSlide(index, focusHeading = true) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((slide, position) => { slide.hidden = position !== current; });
+      picker.value = current;
+      previous.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      counter.textContent = 'Slide ' + (current + 1) + ' of ' + slides.length;
+      if (focusHeading) slides[current].querySelector('h1,h2').focus();
+    }
+
+    previous.addEventListener('click', () => showSlide(current - 1));
+    next.addEventListener('click', () => showSlide(current + 1));
+    picker.addEventListener('change', () => showSlide(Number(picker.value)));
+    document.addEventListener('keydown', event => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.target.closest('select, pre')) return;
+      const targets = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: slides.length - 1 };
+      if (!Object.hasOwn(targets, event.key)) return;
+      event.preventDefault();
+      showSlide(targets[event.key]);
+    });
+    document.querySelector('.deck-navigation').hidden = false;
+    showSlide(0, false);
+  </script>
+</body>
+</html>

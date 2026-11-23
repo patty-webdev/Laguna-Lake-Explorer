@@ -15,7 +15,7 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=water-quality-factors" rel="stylesheet" />
+    <link href="./styles.css?v=presentation" rel="stylesheet" />
   </head>
   <body class="landing-active">
     <div id="map" aria-label="Interactive Laguna de Bay map"></div>
@@ -31,10 +31,17 @@
           Explore Laguna de Bay in 3D and discover historical water-quality
           readings from monitoring stations around the lake.
         </p>
-        <button id="enterExplorer" class="landing-explore" type="button">
-          Explore
-        </button>
+        <div class="landing-actions">
+          <button id="enterExplorer" class="landing-explore" type="button">
+            Explore
+          </button>
+          <a class="landing-presentation ghost" href="./presentation.html">View Presentation</a>
+        </div>
       </div>
+      <footer class="landing-credits">
+        <p><strong>WITM 101 Advanced Web Design and Programming</strong></p>
+        <p>Developed by Patrick A. Cueto, Mike Angelo Monzon, and Christine Villanueva</p>
+      </footer>
     </main>
     <div id="explorerUI" hidden>
       <div class="vignette"></div>
