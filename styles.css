@@ -185,7 +185,7 @@
 }
 @media(max-width:650px){
  .landing-screen{
-  align-items:end;padding:20px 24px max(54px,calc(env(safe-area-inset-bottom) + 40px));
+  align-items:center;padding:20px 24px max(54px,calc(env(safe-area-inset-bottom) + 40px));
   background:linear-gradient(0deg,rgba(5,20,24,.69),rgba(5,20,24,.29) 36%,transparent 70%)
  }
  .landing-screen{row-gap:14px}
