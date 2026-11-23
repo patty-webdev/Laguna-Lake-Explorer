@@ -147,8 +147,8 @@ function initializeMap() {
     setActiveView(false);
     document.querySelector('[data-view].active')?.classList.remove('active');
     document.querySelector('[data-view="all"]').classList.add('active');
-    map.setPadding(landingPadding());
-    map.jumpTo(landingCamera);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    map.easeTo({ ...landingCamera, padding: landingPadding(), duration: reduceMotion ? 0 : 1100 });
   });
 
   function setActiveView(topDown) {
