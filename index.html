@@ -15,7 +15,7 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=compact-attribution" rel="stylesheet" />
+    <link href="./styles.css?v=coverage-and-trends" rel="stylesheet" />
   </head>
   <body class="landing-active">
     <div id="map" aria-label="Interactive Laguna de Bay map"></div>
@@ -30,6 +30,10 @@
         <p class="landing-subtitle">
           Explore Laguna de Bay in 3D and discover historical water-quality
           readings from monitoring stations around the lake.
+        </p>
+        <p class="landing-source">
+          All water-quality readings come from reports published by the
+          <a href="https://llda.gov.ph/" target="_blank" rel="noopener noreferrer">Laguna Lake Development Authority (LLDA)</a>.
         </p>
         <div class="landing-actions">
           <button id="enterExplorer" class="landing-explore" type="button">
@@ -140,6 +144,11 @@
           ><select id="qualityParameter"></select>
           <label for="qualityMonth">Sampling month</label
           ><select id="qualityMonth"></select>
+          <details class="coverage-calendar">
+            <summary>Data coverage calendar</summary>
+            <p>Choose a month with readings. An asterisk marks months with readings pending review.</p>
+            <div id="qualityCoverage"></div>
+          </details>
           <label for="qualityLayer">Map layer</label
           ><select id="qualityLayer">
             <option value="stations">Station readings</option>
@@ -151,6 +160,10 @@
           </select>
           <p id="qualityStatus" role="status">Loading historical readings…</p>
           <div id="qualityLegend"></div>
+          <button id="qualityShare" class="ghost quality-share" type="button" disabled>Copy map link</button>
+          <label for="qualityShareUrl" hidden>Map link</label>
+          <input id="qualityShareUrl" type="url" readonly hidden />
+          <p id="qualityShareStatus" role="status"></p>
           <button id="qualityFactorsLink" type="button" aria-haspopup="dialog">What can cause an unusual reading?</button>
           <details id="qualityReadingDetails" hidden>
             <summary id="qualityReadingSummary">Reported readings</summary>
@@ -175,9 +188,12 @@
           </select>
           <label for="historyParameter">Parameter</label>
           <select id="historyParameter"></select>
+          <label for="historyCompare">Compare with another station</label>
+          <select id="historyCompare" disabled><option value="">None</option></select>
+          <ul id="historyChartKey" class="quality-guideline-key" hidden></ul>
           <p id="qualityHistoryStatus" role="status">Loading historical readings…</p>
           <canvas id="qualityHistoryChart" width="600" height="270" role="img"
-            aria-label="Historical monthly readings for the selected station and parameter"
+            aria-label="Historical monthly readings for the selected stations and parameter"
             aria-describedby="qualityHistoryStatus" hidden></canvas>
           <details id="qualityHistoryDetails" hidden>
             <summary>Historical readings and sources</summary>
@@ -298,7 +314,7 @@
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
     <script src="./research.js?v=annual-coverage"></script>
-    <script src="./water-quality.js?v=mapped-stations"></script>
+    <script src="./water-quality.js?v=coverage-and-trends"></script>
     <script src="./app.js?v=compact-attribution"></script>
     <script src="./tutorial.js?v=station-selection"></script>
   </body>

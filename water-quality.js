@@ -36,21 +36,27 @@ function numericValue(record){
  return record.numeric_value==null||String(record.numeric_value).trim()===''?NaN:Number(record.numeric_value);
 }
 
-function drawQualityHistory(canvas,entries,first,last){
+function drawQualityHistory(canvas,series,first,last,guideline){
  const context=canvas.getContext('2d');
  if(!context)return false;
  const monthIndex=period=>Number(period.slice(0,4))*12+Number(period.slice(5));
  const start=monthIndex(first),end=monthIndex(last);
- const values=entries.map(({value})=>value);
+ const values=series.flatMap(({points})=>points.map(({value})=>value));
+ const limits=guideline?(guideline.min===0?[guideline.max]:[guideline.min,guideline.max].filter(Number.isFinite)):[];
+ values.push(...limits);
  const min=Math.min(...values),max=Math.max(...values);
  const padding=min===max?Math.abs(min)*.1||1:(max-min)*.1;
- const low=min-padding,high=max+padding;
+ const low=Math.max(0,min-padding),high=max+padding;
  const left=88,right=canvas.width-22,top=20,bottom=canvas.height-48;
  const x=period=>start===end?(left+right)/2:left+(monthIndex(period)-start)/(end-start)*(right-left);
  const y=value=>bottom-(value-low)/(high-low)*(bottom-top);
  const number=new Intl.NumberFormat('en',{maximumSignificantDigits:4});
 
  context.clearRect(0,0,canvas.width,canvas.height);
+ if(limits.length===2){
+  context.fillStyle='#a6f3c626';
+  context.fillRect(left,y(limits[1]),right-left,y(limits[0])-y(limits[1]));
+ }
  context.font='20px system-ui';
  context.textAlign='right';
  context.textBaseline='middle';
@@ -71,22 +77,33 @@ function drawQualityHistory(canvas,entries,first,last){
   context.fillText(researchMonth(last),right,bottom+27);
  }
 
- context.strokeStyle='#67e8f9';
- context.fillStyle='#67e8f9';
- context.lineWidth=3;
- let previous;
- for(const {period,value} of entries){
-  const point={x:x(period),y:y(value),month:monthIndex(period)};
-  if(previous&&point.month===previous.month+1){
-   context.beginPath();
-   context.moveTo(previous.x,previous.y);
-   context.lineTo(point.x,point.y);
-   context.stroke();
-  }
+ context.strokeStyle='#a6f3c6';
+ context.setLineDash([8,6]);
+ for(const limit of limits){
   context.beginPath();
-  context.arc(point.x,point.y,5,0,2*Math.PI);
-  context.fill();
-  previous=point;
+  context.moveTo(left,y(limit));
+  context.lineTo(right,y(limit));
+  context.stroke();
+ }
+ context.setLineDash([]);
+ context.lineWidth=3;
+ for(const {points,color} of series){
+  context.strokeStyle=color;
+  context.fillStyle=color;
+  let previous;
+  for(const {period,value} of points){
+   const point={x:x(period),y:y(value),month:monthIndex(period)};
+   if(previous&&point.month===previous.month+1){
+    context.beginPath();
+    context.moveTo(previous.x,previous.y);
+    context.lineTo(point.x,point.y);
+    context.stroke();
+   }
+   context.beginPath();
+   context.arc(point.x,point.y,5,0,2*Math.PI);
+   context.fill();
+   previous=point;
+  }
  }
  return true;
 }
@@ -99,7 +116,8 @@ function initializeQualityMap(map,overview,coverageBounds){
  const state={active:false,openStation,setActive};
  const exploreButton=$('consoleExplore'),qualityButton=$('consoleWaterQuality'),historyButton=$('consoleHistory');
  const historyPanel=$('historyPanel'),explorationTools=$('explorationTools');
- const historyParameter=$('historyParameter'),historyStation=$('historyStation');
+ const historyParameter=$('historyParameter'),historyStation=$('historyStation'),historyCompare=$('historyCompare');
+ const share=$('qualityShare'),shareUrl=$('qualityShareUrl'),shareStatus=$('qualityShareStatus');
  let historyOpen=false;
 
  function showConsoleSection(showHistory=false){
@@ -143,6 +161,26 @@ function initializeQualityMap(map,overview,coverageBounds){
  });
  historyButton.addEventListener('click',()=>openHistory(historyStation.value||stationSelect.value));
  historyParameter.addEventListener('change',renderHistory);
+ historyCompare.addEventListener('change',renderHistory);
+ share.addEventListener('click',async()=>{
+  const url=new URL(location.pathname,location.href);
+  url.searchParams.set('view','water-quality');
+  url.searchParams.set('parameter',parameter.value);
+  url.searchParams.set('month',month.value);
+  url.searchParams.set('layer',layer.value);
+  if(stationSelect.value)url.searchParams.set('station',stationSelect.value);
+  try{
+   await navigator.clipboard.writeText(url.href);
+   shareStatus.textContent='Map link copied.';
+  }catch{
+   shareUrl.value=url.href;
+   shareUrl.hidden=false;
+   shareUrl.labels[0].hidden=false;
+   shareUrl.focus();
+   shareUrl.select();
+   shareStatus.textContent='Copy the link from the field above.';
+  }
+ });
  historyStation.addEventListener('change',()=>{
   renderHistory();
   const location=historicalStationLocations[historyStation.value];
@@ -150,7 +188,7 @@ function initializeQualityMap(map,overview,coverageBounds){
  });
  document.addEventListener('landing:enter',()=>showConsoleSection());
  const popup=new maplibregl.Popup({className:'station-map-popup',maxWidth:'min(340px, calc(100vw - 24px))'});
- let records,loadFailed=false,previousView,previousTerrain,availableParameters=[];
+ let records,coverageYears=[],loadFailed=false,previousView,previousTerrain,availableParameters=[];
  const empty={type:'FeatureCollection',features:[]};
  const normalize=name=>name.toLowerCase().replaceAll('.','');
 
@@ -167,47 +205,118 @@ function initializeQualityMap(map,overview,coverageBounds){
  function renderHistory(){
   if(!historyOpen||!records)return;
   const parameterRecords=records.filter(record=>record.parameter===historyParameter.value);
-  const mappedRecords=parameterRecords.filter(record=>coordinates(record));
-  updateStationAvailability(historyStation,new Set(mappedRecords.map(record=>record.station_id)));
+  const available=new Set(parameterRecords.filter(record=>coordinates(record)).map(record=>record.station_id));
+  updateStationAvailability(historyStation,available);
+  available.delete(historyStation.value);
+  historyCompare.disabled=!historyStation.value;
+  if(historyCompare.disabled)historyCompare.value='';
+  updateStationAvailability(historyCompare,available);
   map.setPaintProperty('history-stations','circle-color',[
-   'case',['==',['get','stationId'],historyStation.value],'#fbbf24','#0e7490'
+   'match',['get','stationId'],historyStation.value||'-','#67e8f9',historyCompare.value||'--','#fbbf24','#0e7490'
   ]);
-  const canvas=$('qualityHistoryChart'),message=$('qualityHistoryStatus');
+  const canvas=$('qualityHistoryChart'),message=$('qualityHistoryStatus'),key=$('historyChartKey');
   const details=$('qualityHistoryDetails'),list=$('qualityHistoryList');
-  const history=parameterRecords.filter(record=>record.station_id===historyStation.value)
-   .sort((a,b)=>a.period.localeCompare(b.period));
+  const ids=[historyStation.value,historyCompare.value].filter(Boolean);
+  const series=ids.map((id,index)=>{
+   const readings=parameterRecords.filter(record=>record.station_id===id)
+    .sort((a,b)=>a.period.localeCompare(b.period));
+   const points=readings.filter(record=>record.qualifier==='exact_as_printed')
+    .map(record=>({period:record.period,value:numericValue(record)}))
+    .filter(point=>Number.isFinite(point.value)&&point.value>=0);
+   return {name:readings[0].station_name,readings,points,color:['#67e8f9','#fbbf24'][index]};
+  });
+  const readings=series.flatMap(item=>item.readings);
+  const total=series.reduce((count,item)=>count+item.points.length,0);
+  const unit=readings[0]?.unit;
+  const guideline=classCGuidelines[historyParameter.value];
+  const guide=guideline&&readings.every(record=>record.unit===guideline.unit)?guideline:null;
   list.replaceChildren();
+  key.replaceChildren();
+  key.hidden=true;
   canvas.hidden=true;
-  details.hidden=!history.length;
-  if(!history.length){
-   message.textContent=historyStation.value
-    ?'No historical readings for this station and parameter.'
-    :mappedRecords.length?'Choose a monitoring station to see its history.':'No mapped stations have historical readings for this parameter.';
+  details.hidden=!readings.length;
+  if(!readings.length){
+   message.textContent=available.size?'Choose a monitoring station to see its history.':'No mapped stations have historical readings for this parameter.';
    return;
   }
+  for(const item of series){
+   for(const record of item.readings){
+    const entry=researchElement('li',[series.length>1?item.name:'',researchMonth(record.period),record.reported_value+' '+record.unit].filter(Boolean).join(' / '));
+    entry.append(researchElement('small',validationLabels[record.validation_status]),readingSource(record));
+    list.append(entry);
+   }
+  }
+  if(!total){
+   message.textContent='No exact numeric readings to plot. See historical readings below.';
+   return;
+  }
+  const periods=readings.map(record=>record.period).sort();
+  canvas.hidden=!drawQualityHistory(canvas,series,periods[0],periods.at(-1),guide);
+  for(const {name,color} of series){
+   const item=researchElement('li',name);
+   const swatch=researchElement('span');
+   swatch.setAttribute('aria-hidden','true');
+   swatch.style.backgroundColor=color;
+   item.prepend(swatch);
+   key.append(item);
+  }
+  if(guide)key.append(researchElement('li','Class C guideline '+guide.label));
+  key.hidden=false;
+  message.textContent=researchLabels[historyParameter.value]+' ('+unit+') / '+total+' of '+readings.length+' readings plotted. Lines connect consecutive months.';
+ }
 
-  for(const record of history){
-   const entry=researchElement('li',`${researchMonth(record.period)} · ${record.reported_value} ${record.unit}`);
-   entry.append(researchElement('small',validationLabels[record.validation_status]),readingSource(record));
-   list.append(entry);
+ function renderCoverage(entries){
+  const root=$('qualityCoverage');
+  const byMonth=new Map();
+  for(const record of entries){
+   const monthRecords=byMonth.get(record.period)||[];
+   monthRecords.push(record);
+   byMonth.set(record.period,monthRecords);
   }
-  const points=history.filter(record=>record.qualifier==='exact_as_printed')
-   .map(record=>({period:record.period,value:numericValue(record)}))
-   .filter(point=>Number.isFinite(point.value));
-  const first=history[0].period,last=history.at(-1).period;
-  const {station_name,unit}=history[0];
-  if(!points.length){
-   message.textContent=`${station_name} · No exact numeric readings to plot. See historical readings below.`;
-   return;
+  const label=new Intl.DateTimeFormat('en',{month:'short',timeZone:'UTC'});
+  root.replaceChildren();
+  for(const year of coverageYears){
+   const group=researchElement('fieldset');
+   group.className='coverage-year';
+   group.append(researchElement('legend',year));
+   const grid=researchElement('div');
+   grid.className='coverage-months';
+   for(let number=1;number<=12;number++){
+    const period=year+'-'+String(number).padStart(2,'0');
+    const monthRecords=byMonth.get(period)||[];
+    const count=monthRecords.length;
+    const pending=monthRecords.filter(record=>record.validation_status!=='confirmed_in_official_report').length;
+    const monthLabel=label.format(new Date(period+'-01T00:00:00Z'));
+    const button=researchElement('button',monthLabel+(pending?'*':''));
+    button.type='button';
+    button.className='mode';
+    button.disabled=!count;
+    button.classList.toggle('active',period===month.value);
+    button.setAttribute('aria-pressed',String(period===month.value));
+    const description=researchMonth(period)+' / '+count+' readings'+(pending?' / '+pending+' pending review':'');
+    button.title=description;
+    button.setAttribute('aria-label',description);
+    button.addEventListener('click',()=>{
+     month.value=period;
+     render();
+     root.querySelector('[aria-pressed="true"]')?.focus();
+    });
+    grid.append(button);
+   }
+   group.append(grid);
+   root.append(group);
   }
-  canvas.hidden=!drawQualityHistory(canvas,points,first,last);
-  message.textContent=`${station_name} · ${researchLabels[historyParameter.value]} (${unit}) · ${points.length} of ${history.length} readings plotted. Lines connect consecutive months.`;
  }
 
  function render(){
   if(!state.active||!records)return;
   popup.remove();
   const all=records.filter(record=>record.parameter===parameter.value);
+  share.disabled=!month.value;
+  shareStatus.textContent='';
+  shareUrl.hidden=true;
+  shareUrl.labels[0].hidden=true;
+  renderCoverage(all);
   const selected=all.filter(record=>record.period===month.value);
   const availableStations=records.filter(record=>record.period===month.value&&coordinates(record));
   updateStationAvailability(stationSelect,new Set(availableStations.map(record=>record.station_id)));
@@ -457,6 +566,9 @@ function initializeQualityMap(map,overview,coverageBounds){
  const dataReady=loadResearch().then(({monthly,months,stations,parameters})=>{
   records=monthly;
   availableParameters=parameters;
+  const newest=Number(months[0]?.slice(0,4));
+  const oldest=Number(months.at(-1)?.slice(0,4));
+  if(Number.isFinite(oldest))coverageYears=Array.from({length:newest-oldest+1},(_,index)=>newest-index);
   for(const {parameter:key,unit} of parameters){
    parameter.add(new Option(`${researchLabels[key]} (${unit})`,key));
    historyParameter.add(new Option(`${researchLabels[key]} (${unit})`,key));
@@ -467,6 +579,7 @@ function initializeQualityMap(map,overview,coverageBounds){
    const option=new Option(`${id} · ${record.station_name}${hasLocation?'':' (location unavailable)'}`,id);
    stationSelect.add(option);
    historyStation.add(option.cloneNode(true));
+   historyCompare.add(option.cloneNode(true));
   }
   render();
   renderHistory();
@@ -476,5 +589,23 @@ function initializeQualityMap(map,overview,coverageBounds){
   status.textContent='Historical readings could not load.';
   $('qualityHistoryStatus').textContent=status.textContent;
  });
+ const shared=new URLSearchParams(location.search);
+ if(shared.get('view')==='water-quality'){
+  const styleReady=new Promise(resolve=>map.once('style.load',resolve));
+  document.addEventListener('explorer:ready',async()=>{
+   await Promise.all([dataReady,styleReady]);
+   const choose=(field,key)=>{
+    const value=shared.get(key);
+    if(Array.from(field.options).some(option=>option.value===value))field.value=value;
+   };
+   choose(parameter,'parameter');
+   choose(month,'month');
+   choose(layer,'layer');
+   qualityButton.click();
+   const id=shared.get('station');
+   if(id)openStation(id,month.value);
+  },{once:true});
+  $('enterExplorer').click();
+ }
  return state;
 }

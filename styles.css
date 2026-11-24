@@ -142,6 +142,12 @@
  max-width:36ch;margin:0 0 26px;color:#effbf5;
  font-size:clamp(1rem,1.4vw,1.25rem);line-height:1.5;text-shadow:0 2px 12px #05191d
 }
+.landing-source{
+ max-width:44ch;margin:0 0 18px;color:#e9f5f4;font-size:.85rem;line-height:1.45;
+ text-shadow:0 1px 8px #05191d
+}
+.landing-source a{pointer-events:auto;color:#a6f3c6;text-decoration-thickness:1px;text-underline-offset:3px}
+.landing-source a:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .landing-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .landing-presentation{
  display:inline-flex;align-items:center;justify-content:center;min-height:48px;
@@ -199,6 +205,7 @@
  #landingTitle{font-size:clamp(2rem,8vh,3.2rem);margin:8px 0}
  .landing-mark{display:none}
  .landing-subtitle{font-size:.9rem;margin-bottom:10px}
+ .landing-source{margin-bottom:10px}
 }
 
 .home-link{display:inline-flex;align-items:center;text-decoration:none}
@@ -328,3 +335,13 @@
 @media(max-width:650px){
  .landing-content{width:100%}
 }
+
+.coverage-calendar{margin:4px 0 12px}
+.coverage-year{border:0;padding:0;margin:0 0 10px;min-width:0}
+.coverage-year legend{padding:0;margin-bottom:4px;color:#c4ddda;font-weight:700}
+.coverage-months{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.coverage-months button{padding:4px 2px;min-height:34px}
+.coverage-months button:disabled{opacity:.48;cursor:default}
+.quality-share{font-size:.8rem;padding:8px 10px}
+#qualityShareUrl{width:100%;margin-top:6px;font:inherit}
+#qualityShareStatus:empty{display:none}
