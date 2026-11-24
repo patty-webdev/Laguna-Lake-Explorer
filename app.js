@@ -333,15 +333,22 @@ async function initializeData() {
       const selected = station.value;
       const currentNames = new Map(monthly.filter(record => record.period === month.value)
         .map(record => [record.station_id, record.station_name]));
-      station.replaceChildren(...Array.from(stations, ([id, record]) =>
-        new Option(id + ' · ' + (currentNames.get(id) || record.station_name), id)));
-      if (stations.has(selected)) station.value = selected;
+      const available = Array.from(currentNames.keys()).filter(id => Object.hasOwn(historicalStationLocations, id));
+      station.replaceChildren(...Array.from(stations, ([id, record]) => {
+        const name = currentNames.get(id);
+        const hasLocation = Object.hasOwn(historicalStationLocations, id);
+        const reason = !hasLocation ? ' (location unavailable)' : !name ? ' (no readings)' : '';
+        const option = new Option(id + ' · ' + (name || record.station_name) + reason, id);
+        option.disabled = !hasLocation || !name;
+        return option;
+      }));
+      station.value = available.includes(selected) ? selected : (available[0] ?? '');
     }
     function updateReadings() {
       const readings = monthly.filter(record => record.station_id === station.value && record.period === month.value);
       root.replaceChildren();
       if (!readings.length) {
-        root.textContent = 'No station readings for this month.';
+        root.textContent = 'No mapped stations have readings for this month.';
         return;
       }
       for (const record of readings) {

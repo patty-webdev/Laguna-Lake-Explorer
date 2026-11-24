@@ -52,7 +52,7 @@ The app leaves qualified or missing values unassessed. Nitrate and phosphate als
 
 ## Historical Trends
 
-Choose **Historical Trends** in the Exploration Console, then select a station and parameter. Clicking a mapped station updates the chart and highlights its marker. Changing the monitoring station in the dropdown also moves the map to that station when coordinates are available. Stations without coordinates can still be selected in the dropdown.
+Choose **Historical Trends** in the Exploration Console, then select a station and parameter. Clicking a mapped station updates the chart and highlights its marker. Changing the monitoring station in the dropdown also moves the map to that station when coordinates are available. Readings for stations without map coordinates are available in the Research archive.
 
 The chart plots exact numeric monthly readings on a calendar axis and connects consecutive months. Missing months and qualified readings leave gaps. Expand **Historical readings and sources** to see the reported values, review statuses, and LLDA report links, including values such as **&lt;0.1** that are excluded from the plot.
 
