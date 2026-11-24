@@ -49,8 +49,7 @@ function wireLandingCamera(map) {
     map.off('idle', rotate);
     map.off('moveend', rotate);
     map.stop();
-    map.setPadding({ left: 0, right: 0, top: 0, bottom: 0 });
-    map.easeTo({ ...locations.all, duration: motion.matches ? 0 : 1100 });
+    map.easeTo({ ...locations.all, padding: { left: 0, right: 0, top: 0, bottom: 0 }, duration: motion.matches ? 0 : 1100 });
     canvas.tabIndex = tabIndex;
   });
   document.addEventListener('landing:ready', () => {
