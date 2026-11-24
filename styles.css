@@ -230,6 +230,7 @@
 @media(max-width:760px),(max-width:950px) and (max-height:520px){
  :root{
   --mobile-gutter:10px;
+  --mobile-attribution-size:44px;
   --mobile-toolbar-bottom:max(28px,calc(env(safe-area-inset-bottom) + 24px))
  }
  .topbar{
@@ -246,7 +247,7 @@
   min-height:44px;min-width:44px;padding:5px 7px;font-size:.8rem
  }
  .hud-bottom{
-  left:var(--mobile-gutter);right:var(--mobile-gutter);bottom:var(--mobile-toolbar-bottom);
+  left:var(--mobile-gutter);right:calc(var(--mobile-gutter) + var(--mobile-attribution-size) + 6px);bottom:var(--mobile-toolbar-bottom);
   display:flex;justify-content:center;gap:6px;pointer-events:none
  }
  .quality-active .hud-bottom{justify-content:center}
@@ -284,6 +285,19 @@
  .crosshair{left:50%;top:47%}
  .mobile-panel-open .crosshair{top:33%}
  .maplibregl-ctrl-bottom-right{right:var(--mobile-gutter);bottom:max(3px,env(safe-area-inset-bottom))}
+ #map .maplibregl-ctrl-attrib.maplibregl-compact{margin-right:0}
+ body:not(.landing-active) #map .maplibregl-ctrl-bottom-right:has(.maplibregl-compact:not(.maplibregl-compact-show)){
+  bottom:var(--mobile-toolbar-bottom)
+ }
+ body:not(.landing-active) #map .maplibregl-compact:not(.maplibregl-compact-show){
+  min-width:var(--mobile-attribution-size);min-height:var(--mobile-attribution-size);margin-bottom:0
+ }
+ body:not(.landing-active) #map .maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-button{
+  width:var(--mobile-attribution-size);height:var(--mobile-attribution-size)
+ }
+ #map .maplibregl-compact-show .maplibregl-ctrl-attrib-inner{
+  max-height:60px;overflow:auto;overscroll-behavior:contain
+ }
  dialog{max-height:calc(100dvh - 24px);overflow:auto}
 }
 @media(max-width:950px) and (max-height:520px) and (orientation:landscape){
@@ -307,7 +321,7 @@
 .notice:empty{display:none}
 @media(max-width:760px),(max-width:950px) and (max-height:520px){
  body:has(#map .maplibregl-compact-show){
-  --mobile-toolbar-bottom:max(76px,calc(env(safe-area-inset-bottom) + 72px))
+  --mobile-toolbar-bottom:max(86px,calc(env(safe-area-inset-bottom) + 83px))
  }
  .landing-active:has(#map .maplibregl-compact-show) .landing-screen{padding-bottom:max(85px,calc(env(safe-area-inset-bottom) + 81px))}
 }

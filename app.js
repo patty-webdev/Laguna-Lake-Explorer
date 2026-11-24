@@ -61,6 +61,24 @@ function wireLandingCamera(map) {
   });
 }
 
+function startWithCollapsedAttribution(map) {
+  const control = map.getContainer().querySelector('.maplibregl-ctrl-attrib');
+  if (!control) return;
+  const compact = 'maplibregl-compact', expanded = 'maplibregl-compact-show';
+  function closeCompact() {
+    if (!control.classList.contains(compact)) return;
+    control.classList.remove(expanded);
+    control.open = false;
+  }
+  closeCompact();
+  // MapLibre may switch into compact mode after the first attribution loads or after a resize.
+  const observer = new MutationObserver(changes => {
+    if (changes.some(change => !change.oldValue?.split(/\s+/).includes(compact))) closeCompact();
+  });
+  observer.observe(control, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+  map.once('remove', () => observer.disconnect());
+}
+
 function initializeMap() {
   const style = {
     version: 8,
@@ -115,6 +133,7 @@ function initializeMap() {
       return { pitch: Math.min(pitch, onLanding ? landingCamera.pitch : pitchLimit(zoom)) };
     }
   });
+  startWithCollapsedAttribution(map);
   map.setPadding(landingPadding());
   const terrainButton = $('terrain');
   const updateHUD = () => {
