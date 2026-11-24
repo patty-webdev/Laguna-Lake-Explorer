@@ -94,7 +94,7 @@ function drawQualityHistory(canvas,entries,first,last){
 function initializeQualityMap(map,overview,coverageBounds){
  const panel=$('qualityPanel');
  const parameter=$('qualityParameter'),month=$('qualityMonth'),layer=$('qualityLayer');
- const stationSelect=$('qualityStation'),focusButton=$('focusStation');
+ const stationSelect=$('qualityStation');
  const status=$('qualityStatus'),legend=$('qualityLegend');
  const state={active:false,openStation,setActive};
  const exploreButton=$('consoleExplore'),qualityButton=$('consoleWaterQuality'),historyButton=$('consoleHistory');
@@ -229,7 +229,6 @@ function initializeQualityMap(map,overview,coverageBounds){
     }
    }];
   });
-  focusButton.disabled=!historicalStationLocations[stationSelect.value];
   const heat=layer.value==='heat';
   const numericCount=features.filter(feature=>feature.properties.numeric).length;
   const showHeat=heat&&numericCount>=3;
@@ -358,7 +357,6 @@ function initializeQualityMap(map,overview,coverageBounds){
  map.on('click','quality-stations',event=>{
   const feature=event.features[0];
   stationSelect.value=feature.properties.stationId;
-  focusButton.disabled=false;
   showStation(stationSelect.value,feature.geometry.coordinates);
  });
  map.on('click','history-stations',event=>{
@@ -372,8 +370,10 @@ function initializeQualityMap(map,overview,coverageBounds){
  }
 
  for(const input of [parameter,month,layer])input.addEventListener('change',render);
- stationSelect.addEventListener('change',render);
- focusButton.addEventListener('click',focusStation);
+ stationSelect.addEventListener('change',()=>{
+  render();
+  focusStation();
+ });
 
  async function openStation(id,period){
   setActive(true);
@@ -384,8 +384,7 @@ function initializeQualityMap(map,overview,coverageBounds){
    render();
   }
   stationSelect.value=id;
-  focusButton.disabled=!Object.hasOwn(historicalStationLocations,id);
-  if(focusButton.disabled){
+  if(!Object.hasOwn(historicalStationLocations,id)){
    status.textContent='The selected station has no published coordinates in this map.';
    return;
   }

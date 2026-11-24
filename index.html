@@ -149,14 +149,6 @@
           ><select id="qualityStation">
             <option value="">Choose a station</option>
           </select>
-          <button
-            id="focusStation"
-            class="terrain-toggle quality-focus"
-            type="button"
-            disabled
-          >
-            Focus station
-          </button>
           <p id="qualityStatus" role="status">Loading historical readings…</p>
           <div id="qualityLegend"></div>
           <button id="qualityFactorsLink" type="button" aria-haspopup="dialog">What can cause an unusual reading?</button>
@@ -306,8 +298,8 @@
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
     <script src="./research.js?v=water-anomalies"></script>
-    <script src="./water-quality.js?v=history-focus"></script>
+    <script src="./water-quality.js?v=station-selection"></script>
     <script src="./app.js?v=landing-zoom"></script>
-    <script src="./tutorial.js?v=console-only"></script>
+    <script src="./tutorial.js?v=station-selection"></script>
   </body>
 </html>

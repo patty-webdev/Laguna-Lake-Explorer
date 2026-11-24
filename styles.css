@@ -10,8 +10,6 @@
 .quality-active .hud-bottom{justify-content:flex-end}
 .quality-panel h2{margin:0 0 18px;font:700 1.45rem 'Space Grotesk',sans-serif}
 .quality-panel label{display:block;margin-bottom:5px}
-.quality-focus{width:100%}
-.quality-focus:disabled{opacity:.55;cursor:default}
 .quality-panel p{font-size:.82rem;line-height:1.5}
 .quality-panel a{color:#9ce7ca}
 #qualityFactorsLink{display:block;margin:10px 0 4px;padding:6px 0;background:none;border:0;color:#9ce7ca;text-decoration:underline;text-underline-offset:3px;font-size:.82rem;text-align:left}

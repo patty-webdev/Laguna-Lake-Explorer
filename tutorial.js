@@ -22,8 +22,8 @@ const tutorialSteps=[
  },
  {
   title:'Focus on a monitoring station',
-  targets:['#focusStation','#exploreFocusStation','#panelToggle','#consoleWaterQuality'],
-  text:'Choose a monitoring station and click Focus station to zoom to its location. Click a map point to see its reading, review status, and source report.',
+  targets:['#exploreFocusStation','#panelToggle','#consoleWaterQuality'],
+  text:'Choose a monitoring station in Water Quality to zoom to its location. Click a map point to see its reading, review status, and source report.',
   detail:'The Reported readings list includes stations whose coordinates are unavailable.'
  },
  {
