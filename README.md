@@ -67,17 +67,20 @@ Open **Research** from the map header.
 
 ## Dataset coverage and limitations
 
-The [consolidated research package](public/data/Laguna_Lake_Consolidated_Research_2026/README.md) contains **418 measurements**.
+The [consolidated research package](public/data/Laguna_Lake_Consolidated_Research_2026/README.md) contains **593 measurements**.
 
 | Period | Coverage | Records |
 | --- | --- | ---: |
+| October to December 2023 | Monthly station BOD and DO for 15 lake stations | 90 |
+| 2023 | Lake-wide annual BOD average | 1 |
 | October to December 2024 | Monthly station readings for BOD, DO, pH, nitrate, and phosphate | 225 |
+| January to March 2025 | Monthly station BOD and DO for 14 lake stations | 84 |
 | January to June 2026 | Monthly station readings for BOD and DO | 192 |
 | 2025 | Lake-wide annual BOD average | 1 |
 
 The app loads the consolidated measurement JSON as its source. The standalone [Q4 2024 audit JSON](public/data/water_quality_audited_2024_Q4.json) contains the same 225 populated values. Chemical oxygen demand (COD), turbidity, and temperature appear in the parameter list but have no bundled numeric measurements.
 
-The package is a partial historical extraction. The source inventory includes reports with no extracted readings. Q4 2024 readings are flagged for recheck, and the 2026 monthly transcriptions require a second review. Reported qualifiers remain intact, and missing or censored measurements are never treated as zero. The annual BOD average is displayed separately from station-month readings.
+The package is a partial historical extraction. The source inventory includes reports with no extracted readings. Q4 2024 readings are flagged for recheck, and the 2023 Q4, 2025 Q1, and 2026 monthly transcriptions require a second review. Reported qualifiers remain intact, and missing or censored measurements are never treated as zero. Annual BOD averages are displayed separately from station-month readings.
 
 Nine stations use historical coordinates from Appendix A of the [published spatial variability study](https://www.researchgate.net/publication/349406848_Spatial_Variability_Model_for_Water_Quality_Assessment_of_the_Physicochemical_Parameters_and_the_Water_Quality_Index_of_Laguna_Lake_and_its_Tributaries). The Water Quality map matches measurements by station ID and station name. Sampling positions may have changed. The app has no validated shoreline polygon for clipping the heatmap.
 

@@ -40,7 +40,10 @@ function loadResearch(){
   const annual=measurements.filter(record=>record.record_type==='lake_annual_average');
   const months=[...new Set(monthly.map(record=>record.period))].sort().reverse();
   const stations=new Map(registry.map(station=>[station.station_id,station]));
-  for(const record of monthly)stations.set(record.station_id,record);
+  for(const record of monthly){
+   const previous=stations.get(record.station_id);
+   if(!previous?.period||record.period>=previous.period)stations.set(record.station_id,record);
+  }
   return {measurements,monthly,annual,months,parameters,stations,registry,sources,coverage,stationCounts};
  }).catch(error=>{
   researchRequest=undefined;
@@ -224,9 +227,9 @@ function researchDataBrowser({measurements,parameters,registry,sources,coverage,
 function renderResearchArchive(dataset){
  const {monthly,annual,registry,sources,coverage,stationCounts}=dataset;
  const root=$('researchContents');
- root.replaceChildren(researchElement('p',`${monthly.length} monthly station readings and ${annual.length} lake-wide annual average. The archive inventory includes reports with no extracted readings.`));
+ root.replaceChildren(researchElement('p',`${monthly.length} monthly station readings and ${annual.length} lake-wide annual averages. The archive inventory includes reports with no extracted readings.`));
  root.append(...researchDataBrowser(dataset),researchElement('h3','Lake-wide annual averages'));
- for(const record of annual){
+ for(const record of [...annual].sort((a,b)=>a.period.localeCompare(b.period))){
   const row=researchElement('p',`${record.period} · ${record.parameter} · ${record.reported_value} ${record.unit} · ${validationLabels[record.validation_status]} `);
   row.append(readingSource(record));
   root.append(row);
