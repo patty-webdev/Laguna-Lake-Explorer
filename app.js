@@ -31,33 +31,44 @@ function wireLandingCamera(map) {
   const canvas = map.getCanvas();
   const tabIndex = canvas.tabIndex;
   canvas.tabIndex = -1;
-  let turn = 0;
+  let rotationFrame = null;
+
+  function scheduleRotation() {
+    if (rotationFrame === null && explorer.hidden && !motion.matches) {
+      rotationFrame = requestAnimationFrame(rotate);
+    }
+  }
 
   function rotate() {
+    rotationFrame = null;
     if (!explorer.hidden || motion.matches) return;
-    turn = (turn + 1) % 4;
-    map.once('moveend', rotate);
-    map.easeTo({
-      bearing: landingCamera.bearing + turn * 90,
+    if (map.isMoving()) {
+      map.once('moveend', scheduleRotation);
+      return;
+    }
+    map.once('moveend', scheduleRotation);
+    map.rotateTo(map.getBearing() + 90, {
       duration: 15000,
       easing: progress => progress
     });
   }
 
-  if (!motion.matches) map.once('idle', rotate);
+  function cancelRotation() {
+    map.off('moveend', scheduleRotation);
+    if (rotationFrame !== null) cancelAnimationFrame(rotationFrame);
+    rotationFrame = null;
+  }
+
+  scheduleRotation();
   $('enterExplorer').addEventListener('click', () => {
-    map.off('idle', rotate);
-    map.off('moveend', rotate);
+    cancelRotation();
     map.stop();
     map.easeTo({ ...locations.all, padding: { left: 0, right: 0, top: 0, bottom: 0 }, duration: motion.matches ? 0 : 1100 });
     canvas.tabIndex = tabIndex;
   });
   document.addEventListener('landing:ready', () => {
     canvas.tabIndex = -1;
-    turn = 0;
-    if (motion.matches) return;
-    if (map.loaded() && !map.isMoving()) rotate();
-    else map.once('idle', rotate);
+    scheduleRotation();
   });
 }
 

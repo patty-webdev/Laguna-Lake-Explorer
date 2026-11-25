@@ -14,7 +14,7 @@ Open [http://localhost:8000](http://localhost:8000). On Windows, use **py** in p
 
 ## Explore the lake
 
-The landing map opens at **zoom 9.5** and **75 degrees of pitch**, with 3D terrain on. It starts rotating after the initial map view settles and respects the browser's reduced-motion preference. Select **Explore** to enter the map workspace. On mobile, open **Map tools** to show the Exploration Console.
+The landing map opens at **zoom 9.5** and **75 degrees of pitch**, with 3D terrain on. It starts rotating as the map renders and respects the browser's reduced-motion preference. Select **Explore** to enter the map workspace. On mobile, open **Map tools** to show the Exploration Console.
 
 - **Explore** offers 3D and top-down camera views, an elevation toggle, and shortcuts to the lake overview and individual bays. The bay shortcuts go to geographic viewpoints. **Focus selected station** goes to a historical station location when one is available.
 - **Philippines** and **Area of Responsibility** switch to regional views. The dashed outline represents the PAGASA tropical cyclone monitoring area. The map masks neighboring land in the regional view.
