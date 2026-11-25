@@ -297,10 +297,12 @@
   bottom:var(--mobile-toolbar-bottom)
  }
  body:not(.landing-active) #map .maplibregl-compact:not(.maplibregl-compact-show){
-  min-width:var(--mobile-attribution-size);min-height:var(--mobile-attribution-size);margin-bottom:0
+  min-width:var(--mobile-attribution-size);min-height:var(--mobile-attribution-size);
+  margin-bottom:0;padding:0;border-radius:50%
  }
  body:not(.landing-active) #map .maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-button{
-  width:var(--mobile-attribution-size);height:var(--mobile-attribution-size)
+  width:var(--mobile-attribution-size);height:var(--mobile-attribution-size);
+  border-radius:inherit;background-position:center;background-repeat:no-repeat
  }
  #map .maplibregl-compact-show .maplibregl-ctrl-attrib-inner{
   max-height:60px;overflow:auto;overscroll-behavior:contain
