@@ -11,8 +11,7 @@ let retryAt = 0;
 let failure = 'news_unavailable';
 let discoveredCollections;
 
-function rssText(xml, tag) {
-  const text = xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'))?.[1].trim() ?? '';
+function decodeXml(text) {
   if (text.startsWith('<![CDATA[') && text.endsWith(']]>')) return text.slice(9, -3).trim();
   const entities = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
   return text.replace(/&(amp|lt|gt|quot|apos|#x[0-9a-fA-F]+|#\d+);/g, (entity, code) => {
@@ -20,6 +19,39 @@ function rssText(xml, tag) {
     const point = code.startsWith('#x') ? parseInt(code.slice(2), 16) : Number(code.slice(1));
     return point > 0 && point <= 0x10ffff ? String.fromCodePoint(point) : entity;
   });
+}
+
+function rssText(xml, tag) {
+  const text = xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'))?.[1].trim() ?? '';
+  return decodeXml(text);
+}
+
+function tagAttribute(tag, name) {
+  const value = tag.match(new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i'));
+  return decodeXml(value?.[1] ?? value?.[2] ?? '');
+}
+
+function imageUrl(value) {
+  try {
+    const url = new URL(value);
+    if (url.protocol === 'https:' && !url.username && !url.password) return url.href;
+  } catch { /* Missing or invalid image URL. */ }
+  return null;
+}
+
+function rssImage(item) {
+  for (const [tag, kind] of item.matchAll(/<(media:thumbnail|media:content|enclosure)(?=\s|\/?>)[^>]*>/gi)) {
+    const image = /^(?:image\/)/i.test(tagAttribute(tag, 'type')) || /^image$/i.test(tagAttribute(tag, 'medium'));
+    if (kind.toLowerCase() !== 'media:thumbnail' && !image) continue;
+    const url = imageUrl(tagAttribute(tag, 'url'));
+    if (url) return url;
+  }
+  const description = rssText(item, 'description');
+  for (const [tag] of description.matchAll(/<img\s[^>]*>/gi)) {
+    const url = imageUrl(tagAttribute(tag, 'src'));
+    if (url) return url;
+  }
+  return null;
 }
 
 async function googleArticles() {
@@ -41,7 +73,7 @@ async function googleArticles() {
     const url = rssText(item, 'link');
     if (!title || !/^https?:\/\//i.test(url)) continue;
     const publishedAt = Date.parse(rssText(item, 'pubDate'));
-    articles.push({ title, url, source, publishedAt: Number.isFinite(publishedAt) ? new Date(publishedAt).toISOString() : null });
+    articles.push({ title, url, source, image: rssImage(item), publishedAt: Number.isFinite(publishedAt) ? new Date(publishedAt).toISOString() : null });
     if (articles.length === 25) break;
   }
   return articles.sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? ''));

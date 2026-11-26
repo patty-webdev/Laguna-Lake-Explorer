@@ -1,6 +1,6 @@
 (() => {
   const endpoint = '/api/news/laguna-lake';
-  const cacheKey = 'laguna-landing-google-rss-v1';
+  const cacheKey = 'laguna-landing-google-rss-v2';
   const refreshInterval = 30 * 60_000;
   const landing = document.getElementById('landingScreen');
   const slides = document.getElementById('landingNewsSlides');

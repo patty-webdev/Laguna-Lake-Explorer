@@ -27,7 +27,7 @@ The endpoint fetches the Philippine edition of Google News RSS using the same La
 
 ## Explore the lake
 
-The landing page shows up to six news results in a vertical slider. Use the up and down buttons or swipe inside the panel. Cards show the publisher, the feed's publication date, and a link to the story. Google News RSS links may redirect through Google News. The cards use a placeholder for thumbnails. Categories are inferred from headlines. Results from RSS can differ from the full **Open Google News** search.
+The landing page shows up to six news results in a vertical slider. Use the up and down buttons or swipe inside the panel. Cards show the publisher, the feed's publication date, and a link to the story. Google News RSS links may redirect through Google News. The cards show a thumbnail when the feed supplies a usable HTTPS image and a placeholder otherwise. The Google News results page may display images or articles that its RSS feed omits. Categories are inferred from headlines.
 
 The landing map opens at **zoom 9.5** and **75 degrees of pitch**, with 3D terrain on. It starts rotating as the map renders and respects the browser's reduced-motion preference. Select **Explore** to enter the map workspace. On mobile, open **Map tools** to show the Exploration Console.
 
