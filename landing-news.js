@@ -1,6 +1,6 @@
 (() => {
-  const endpoint = './api/news/laguna-lake';
-  const cacheKey = 'laguna-landing-gnews-v2';
+  const endpoint = '/api/news/laguna-lake';
+  const cacheKey = 'laguna-landing-mediacloud-v1';
   const refreshInterval = 30 * 60_000;
   const landing = document.getElementById('landingScreen');
   const slides = document.getElementById('landingNewsSlides');
@@ -12,9 +12,10 @@
   const position = document.getElementById('landingNewsPosition');
   const errorMessages = {
     endpoint_missing: 'The news endpoint is missing. Open the Vercel Preview URL or run the app with vercel dev.',
-    news_not_configured: 'Add GNEWS_API_KEY to the Vercel Preview environment and redeploy.',
-    provider_rejected_request: 'GNews rejected the request. Check the Preview API key, account status, and quota.',
-    provider_rate_limited: 'GNews is limiting requests. The feed will retry automatically.'
+    news_not_configured: 'Add MEDIACLOUD_API_KEY to the Vercel Preview environment and redeploy.',
+    collection_not_found: 'Set MEDIACLOUD_COLLECTION_IDS to the Philippine news collection IDs and redeploy.',
+    provider_rejected_request: 'Media Cloud rejected the search. Check the Preview API key and collection access.',
+    provider_rate_limited: 'Media Cloud is limiting requests. The feed will retry automatically.'
   };
   const newsSearch = new URL('https://news.google.com/search');
   newsSearch.search = new URLSearchParams({
@@ -43,6 +44,7 @@
   let cache;
   let loading = false;
   let nextRequest = 0;
+  let endpointMissing = false;
 
   function readSavedFeed() {
     try {
@@ -159,9 +161,9 @@
     controls.hidden = articles.length < 2;
     slides.scrollTop = 0;
     updateControls();
-    const lastUpdate = `GNews · Updated ${updateFormat.format(fetchedAt)}`;
+    const lastUpdate = `Media Cloud · Updated ${updateFormat.format(fetchedAt)}`;
     status.textContent = stale ? `Showing saved results. ${lastUpdate}`
-      : articles.length ? lastUpdate : 'No matches in the available GNews archive. Use the link below to look for older coverage.';
+      : articles.length ? lastUpdate : 'No matches in the selected Media Cloud collections. Use the link below to search other sources.';
     retry.hidden = !stale;
   }
 
@@ -170,6 +172,7 @@
   }
 
   async function refreshFeed(manual = false) {
+    if (endpointMissing && !manual) return;
     const saved = readSavedFeed();
     if (saved && (!cache || saved.fetchedAt > cache.fetchedAt)) {
       cache = saved;
@@ -185,12 +188,14 @@
       return;
     }
     retry.disabled = true;
-    if (!cache) status.textContent = 'Loading GNews headlines…';
+    if (!cache) status.textContent = 'Loading Media Cloud headlines…';
     try {
       const response = await fetch(endpoint, { signal: AbortSignal.timeout(10_000) });
       if (response.status === 404 || response.ok && !response.headers.get('Content-Type')?.includes('application/json')) {
+        endpointMissing = true;
         throw new Error('endpoint_missing');
       }
+      endpointMissing = false;
       const data = await response.json();
       if (!response.ok) {
         const retryAfter = Number(response.headers.get('Retry-After'));

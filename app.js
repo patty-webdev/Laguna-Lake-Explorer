@@ -100,7 +100,6 @@ function initializeMap() {
         tileSize: 256, maxzoom: 19, bounds: coverageBounds,
         attribution: 'Imagery © <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9">Esri</a>, Vantor, Earthstar Geographics, and the GIS User Community'
       },
-      buildings: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', bounds: coverageBounds },
       'philippines-boundary': {
         type: 'geojson', data: './public/data/philippines-mask.geojson', tolerance: .25,
         attribution: 'PAR: <a href="https://www.pagasa.dost.gov.ph/learning-tools/philippine-area-of-responsibility">PAGASA</a> · Land: <a href="https://www.geoboundaries.org/api/current/gbOpen/PHL/ADM0/">geoBoundaries / OCHA / NAMRIA</a> (<a href="https://creativecommons.org/licenses/by/3.0/igo/">CC BY 3.0 IGO</a>), <a href="https://www.naturalearthdata.com/">Natural Earth</a>'
@@ -108,15 +107,6 @@ function initializeMap() {
     },
     layers: [
       { id: 'satellite', type: 'raster', source: 'satellite' },
-      {
-        id: '3d-buildings', type: 'fill-extrusion', source: 'buildings', 'source-layer': 'building',
-        minzoom: 15, filter: ['!=', ['get', 'hide_3d'], true],
-        paint: {
-          'fill-extrusion-color': '#d4d9d4',
-          'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 0],
-          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0]
-        }
-      },
       {
         id: 'philippines-mask', type: 'fill', source: 'philippines-boundary',
         filter: ['==', ['get', 'kind'], 'mask'],
@@ -163,7 +153,23 @@ function initializeMap() {
     if (station) quality.openStation(station, $('monthSelect').value);
   });
   map.on('move', updateHUD);
+  function loadBuildings() {
+    if (map.getZoom() < 15) return;
+    map.off('zoom', loadBuildings);
+    map.addSource('buildings', { type: 'vector', url: 'https://tiles.openfreemap.org/planet', bounds: coverageBounds });
+    map.addLayer({
+      id: '3d-buildings', type: 'fill-extrusion', source: 'buildings', 'source-layer': 'building',
+      minzoom: 15, filter: ['!=', ['get', 'hide_3d'], true],
+      paint: {
+        'fill-extrusion-color': '#d4d9d4',
+        'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 0],
+        'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0]
+      }
+    }, map.getLayer('quality-basemap') ? 'quality-basemap' : 'philippines-mask');
+  }
   map.once('style.load', () => {
+    map.on('zoom', loadBuildings);
+    loadBuildings();
     terrainButton.disabled = false;
     setTerrain(true);
   });
