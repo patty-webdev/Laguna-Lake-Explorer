@@ -401,8 +401,10 @@
 .landing-news-category,.landing-news-meta{display:block;font-size:.69rem;color:#b6cecf;overflow-wrap:anywhere}
 .landing-news-card a{
  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;
- margin:5px 0;font-weight:700;font-size:.88rem;line-height:1.3;overflow-wrap:anywhere
+ margin:5px 0;font-weight:700;font-size:.88rem;line-height:1.3;overflow-wrap:anywhere;
+ text-decoration:none
 }
+.landing-news-card a:hover{color:#e7fff0}
 .landing-news-footer{min-height:24px}
 .landing-news-footer span{margin-left:auto}
 @media(max-width:850px){
