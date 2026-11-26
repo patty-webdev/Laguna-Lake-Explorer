@@ -1,6 +1,7 @@
 (() => {
   const endpoint = '/api/news/laguna-lake';
   const cacheKey = 'laguna-landing-google-rss-v2';
+  const visibleArticles = 3;
   const refreshInterval = 30 * 60_000;
   const landing = document.getElementById('landingScreen');
   const slides = document.getElementById('landingNewsSlides');
@@ -123,6 +124,7 @@
     thumbnail.append(image, caption);
     const link = element('a', 'landing-news-headline', article.title);
     link.href = article.url;
+    link.title = article.title;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     const publication = article.publishedAt ? ` · Published ${dateFormat.format(new Date(article.publishedAt))}` : '';
@@ -147,12 +149,14 @@
     const index = activeSlide();
     const total = slides.children.length;
     previous.disabled = index <= 0;
-    next.disabled = index >= total - 1;
-    position.textContent = total > 1 ? `${index + 1} / ${total}` : '';
+    next.disabled = index + visibleArticles >= total;
+    position.textContent = total > visibleArticles ? `${index + 1}–${index + visibleArticles} / ${total}` : '';
   }
 
   function moveSlide(direction) {
-    const target = slides.children[activeSlide() + direction];
+    const index = activeSlide() + direction;
+    if (index < 0 || index > slides.children.length - visibleArticles) return;
+    const target = slides.children[index];
     if (!target) return;
     slides.scrollTo({
       top: target.offsetTop - slides.firstElementChild.offsetTop,
@@ -163,7 +167,7 @@
   function render(articles, fetchedAt, provider, stale = false) {
     slides.replaceChildren(...articles.map(makeSlide));
     slides.hidden = articles.length === 0;
-    controls.hidden = articles.length < 2;
+    controls.hidden = articles.length <= visibleArticles;
     slides.scrollTop = 0;
     updateControls();
     const lastUpdate = `${provider} · Updated ${updateFormat.format(fetchedAt)}`;

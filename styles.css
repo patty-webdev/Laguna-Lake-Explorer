@@ -349,7 +349,7 @@
 #qualityShareStatus:empty{display:none}
 
 .landing-screen{
- grid-template-columns:minmax(0,1fr) clamp(380px,44vw,640px);
+ grid-template-columns:minmax(0,1fr) clamp(380px,calc(100% - 430px),1216px);
  column-gap:clamp(20px,4vw,64px)
 }
 .landing-credits{grid-column:1/-1}
@@ -373,10 +373,21 @@
 .landing-news-status,.landing-news-footer{color:#b6cecf;font-size:.75rem}
 .landing-news-status{margin:10px 0}
 .landing-news-slides{
- height:136px;overflow-y:auto;overscroll-behavior-y:contain;
- scroll-snap-type:y mandatory;list-style:none;margin:10px 0;padding:0
+ --news-row-height:124px;
+ max-height:calc(3 * var(--news-row-height));position:relative;
+ overflow-y:auto;overscroll-behavior-y:contain;
+ scroll-snap-type:y mandatory;list-style:none;margin:10px 0;padding:0;
+ scrollbar-width:thin;scrollbar-color:#86b6aa #102c35;scrollbar-gutter:stable
 }
-.landing-news-slide{min-height:100%;scroll-snap-align:start;padding:4px 6px 8px 3px}
+.landing-news-slides:is(:hover,:focus-within){scrollbar-color:#a6f3c6 #102c35}
+@media(forced-colors:active){
+ .landing-news-slides,.landing-news-slides:is(:hover,:focus-within){scrollbar-color:auto}
+}
+.landing-news-slide{
+ height:var(--news-row-height);scroll-snap-align:start;padding:10px 10px 10px 3px;
+ border-bottom:1px solid #86b6aa55
+}
+.landing-news-slide:last-child{border-bottom-color:transparent}
 .landing-news-card{display:grid;grid-template-columns:clamp(76px,12vw,108px) minmax(0,1fr);gap:12px}
 .landing-news-thumbnail{
  display:grid;place-items:center;position:relative;overflow:hidden;
@@ -388,7 +399,10 @@
  color:#fff;background:#091a20e6;font-size:.62rem
 }
 .landing-news-category,.landing-news-meta{display:block;font-size:.69rem;color:#b6cecf;overflow-wrap:anywhere}
-.landing-news-card a{display:block;margin:5px 0;font-weight:700;font-size:.88rem;line-height:1.3;overflow-wrap:anywhere}
+.landing-news-card a{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;
+ margin:5px 0;font-weight:700;font-size:.88rem;line-height:1.3;overflow-wrap:anywhere
+}
 .landing-news-footer{min-height:24px}
 .landing-news-footer span{margin-left:auto}
 @media(max-width:850px){
@@ -396,7 +410,7 @@
  .landing-screen{overflow-y:auto}
  .landing-content,.landing-credits{pointer-events:auto}
 }
-@media(min-width:851px) and (max-height:500px){
+@media(min-width:851px) and (max-height:640px){
  .landing-screen{overflow-y:auto}
  .landing-content,.landing-credits{pointer-events:auto}
 }
