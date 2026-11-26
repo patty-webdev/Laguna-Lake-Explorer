@@ -154,6 +154,10 @@
  box-shadow:0 8px 26px #061a2455
 }
 .landing-explore:hover{background:#c5ffdc}
+@media(prefers-reduced-motion:no-preference){
+ @view-transition{navigation:auto}
+ ::view-transition-group(root){animation-duration:.42s;animation-timing-function:ease-in-out}
+}
 .landing-leaving{animation:landing-leave .7s ease-in-out both}
 .landing-returning{animation:landing-return 1.12s ease-in-out both}
 .explorer-entering :is(.topbar,.sidebar,.compass,.coordinates,.hud-bottom,.crosshair,.vignette){
