@@ -349,7 +349,7 @@
 #qualityShareStatus:empty{display:none}
 
 .landing-screen{
- grid-template-columns:minmax(0,1fr) clamp(380px,calc(100% - 430px),1216px);
+ grid-template-columns:minmax(0,1fr) clamp(380px,min(60%,calc(100% - 430px)),1024px);
  column-gap:clamp(20px,4vw,64px)
 }
 .landing-credits{grid-column:1/-1}
