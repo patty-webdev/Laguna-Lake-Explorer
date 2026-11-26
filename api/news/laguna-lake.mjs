@@ -1,6 +1,7 @@
 const endpoint = new URL('https://gnews.io/api/v4/search');
 endpoint.search = new URLSearchParams({
-  q: '"Laguna Lake" OR "Laguna de Bay" OR "Laguna Lake Development Authority"',
+  q: '"Laguna Lake" OR "Laguna de Bay" OR "Laguna Lake Development Authority" OR "Laguna Bay" OR "Lawa ng Laguna" OR "Lawa ng Bay"',
+  in: 'title,description,content',
   max: '10',
   sortby: 'publishedAt',
   nullable: 'description,content,image'

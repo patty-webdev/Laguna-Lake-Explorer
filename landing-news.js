@@ -1,6 +1,6 @@
 (() => {
   const endpoint = './api/news/laguna-lake';
-  const cacheKey = 'laguna-landing-gnews-v1';
+  const cacheKey = 'laguna-landing-gnews-v2';
   const refreshInterval = 30 * 60_000;
   const landing = document.getElementById('landingScreen');
   const slides = document.getElementById('landingNewsSlides');
@@ -18,7 +18,7 @@
   };
   const newsSearch = new URL('https://news.google.com/search');
   newsSearch.search = new URLSearchParams({
-    q: '"Laguna Lake" OR "Laguna de Bay" OR "Laguna Lake Development Authority"',
+    q: '"Laguna Lake" OR "Laguna de Bay" OR "Laguna Lake Development Authority" OR "Lawa ng Laguna" OR "Lawa ng Bay"',
     hl: 'en-PH', gl: 'PH', ceid: 'PH:en'
   });
   document.getElementById('landingNewsAll').href = newsSearch.href;
@@ -161,7 +161,7 @@
     updateControls();
     const lastUpdate = `GNews · Updated ${updateFormat.format(fetchedAt)}`;
     status.textContent = stale ? `Showing saved results. ${lastUpdate}`
-      : articles.length ? lastUpdate : 'GNews returned no recent articles for Laguna Lake.';
+      : articles.length ? lastUpdate : 'No matches in the available GNews archive. Use the link below to look for older coverage.';
     retry.hidden = !stale;
   }
 
