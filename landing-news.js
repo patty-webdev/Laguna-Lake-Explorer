@@ -1,6 +1,6 @@
 (() => {
   const endpoint = '/api/news/laguna-lake';
-  const cacheKey = 'laguna-landing-mediacloud-v1';
+  const cacheKey = 'laguna-landing-google-rss-v1';
   const refreshInterval = 30 * 60_000;
   const landing = document.getElementById('landingScreen');
   const slides = document.getElementById('landingNewsSlides');
@@ -12,7 +12,6 @@
   const position = document.getElementById('landingNewsPosition');
   const errorMessages = {
     endpoint_missing: 'The news endpoint is missing. Open the Vercel Preview URL or run the app with vercel dev.',
-    news_not_configured: 'Add MEDIACLOUD_API_KEY to the Vercel Preview environment and redeploy.',
     collection_not_found: 'Set MEDIACLOUD_COLLECTION_IDS to the Philippine news collection IDs and redeploy.',
     provider_rejected_request: 'Media Cloud rejected the search. Check the Preview API key and collection access.',
     provider_rate_limited: 'Media Cloud is limiting requests. The feed will retry automatically.'
@@ -155,20 +154,20 @@
     });
   }
 
-  function render(articles, fetchedAt, stale = false) {
+  function render(articles, fetchedAt, provider, stale = false) {
     slides.replaceChildren(...articles.map(makeSlide));
     slides.hidden = articles.length === 0;
     controls.hidden = articles.length < 2;
     slides.scrollTop = 0;
     updateControls();
-    const lastUpdate = `Media Cloud · Updated ${updateFormat.format(fetchedAt)}`;
+    const lastUpdate = `${provider} · Updated ${updateFormat.format(fetchedAt)}`;
     status.textContent = stale ? `Showing saved results. ${lastUpdate}`
-      : articles.length ? lastUpdate : 'No matches in the selected Media Cloud collections. Use the link below to search other sources.';
+      : articles.length ? lastUpdate : 'The news feed returned no matching headlines. Try the Google News search below.';
     retry.hidden = !stale;
   }
 
   function showCache(entry, stale = false) {
-    render(normalize(entry.articles), entry.fetchedAt, stale);
+    render(normalize(entry.articles), entry.fetchedAt, entry.provider, stale);
   }
 
   async function refreshFeed(manual = false) {
@@ -188,7 +187,7 @@
       return;
     }
     retry.disabled = true;
-    if (!cache) status.textContent = 'Loading Media Cloud headlines…';
+    if (!cache) status.textContent = 'Loading Google News headlines…';
     try {
       const response = await fetch(endpoint, { signal: AbortSignal.timeout(10_000) });
       if (response.status === 404 || response.ok && !response.headers.get('Content-Type')?.includes('application/json')) {
@@ -203,13 +202,13 @@
         throw new Error(data?.error);
       }
       if (!Array.isArray(data?.articles) || !Number.isFinite(data.fetchedAt)) throw new Error('Invalid news response');
-      cache = { articles: data.articles, fetchedAt: data.fetchedAt };
+      cache = { articles: data.articles, fetchedAt: data.fetchedAt, provider: data.provider === 'Media Cloud' ? 'Media Cloud' : 'Google News' };
       showCache(cache, data.stale === true);
       try { localStorage.setItem(cacheKey, JSON.stringify(cache)); } catch { /* Storage is optional. */ }
     } catch (error) {
       if (cache) showCache(cache, true);
       else status.textContent = errorMessages[error.message] ?? 'Could not reach the news feed. Try again shortly.';
-      retry.hidden = error.message === 'news_not_configured';
+      retry.hidden = false;
     } finally {
       retry.disabled = false;
     }
