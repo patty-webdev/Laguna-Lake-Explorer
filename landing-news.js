@@ -104,17 +104,23 @@
   function makeSlide(article) {
     const slide = element('li', 'landing-news-slide');
     const card = element('article', 'landing-news-card');
-    const thumbnail = element('span', 'landing-news-thumbnail', '▤');
-    thumbnail.setAttribute('aria-hidden', 'true');
-    if (article.image) {
-      const image = document.createElement('img');
-      image.alt = '';
-      image.loading = 'lazy';
-      image.referrerPolicy = 'no-referrer';
-      image.addEventListener('error', () => image.remove(), { once: true });
-      image.src = article.image;
-      thumbnail.append(image);
+    const thumbnail = element('span', 'landing-news-thumbnail');
+    const caption = element('span', 'landing-news-photo-label', 'Lake photo');
+    caption.hidden = true;
+    const image = document.createElement('img');
+    image.alt = '';
+    image.loading = 'lazy';
+    image.referrerPolicy = 'no-referrer';
+    function loadLakePhoto() {
+      caption.hidden = false;
+      image.src = './public/laguna-news-fallback.jpg';
+      image.addEventListener('error', () => thumbnail.replaceChildren(), { once: true });
     }
+    if (article.image) {
+      image.addEventListener('error', loadLakePhoto, { once: true });
+      image.src = article.image;
+    } else loadLakePhoto();
+    thumbnail.append(image, caption);
     const link = element('a', 'landing-news-headline', article.title);
     link.href = article.url;
     link.target = '_blank';
