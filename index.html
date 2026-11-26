@@ -15,8 +15,8 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=news-toggle-transition" rel="stylesheet" />
-    <script src="./landing-news.js?v=news-toggle-transition" defer></script>
+    <link href="./styles.css?v=compact-landing-actions" rel="stylesheet" />
+    <script src="./landing-news.js?v=hide-news-label" defer></script>
   </head>
   <body class="landing-active">
     <div id="map" aria-label="Interactive Laguna de Bay map"></div>
@@ -32,27 +32,23 @@
           Explore Laguna de Bay in 3D and discover historical water-quality
           readings from monitoring stations around the lake.
         </p>
-        <p class="landing-source">
-          All water-quality readings come from reports published by the
-          <a href="https://llda.gov.ph/" target="_blank" rel="noopener noreferrer">Laguna Lake Development Authority (LLDA)</a>.
-        </p>
         <div class="landing-actions">
           <button id="enterExplorer" class="landing-explore" type="button">
             Explore
           </button>
-          <a class="landing-presentation ghost" href="./presentation.html">View Presentation</a>
+          <a class="ghost" href="./presentation.html">View Presentation</a>
+          <button type="button" class="ghost" id="landingNewsToggle" aria-expanded="false" aria-controls="landingNews" hidden>News</button>
         </div>
       </div>
-      <section class="landing-news" aria-labelledby="landingNewsTitle">
+      <section id="landingNews" class="landing-news" aria-labelledby="landingNewsTitle" hidden>
         <header class="landing-news-header">
           <h2 id="landingNewsTitle">News Around Laguna Lake</h2>
           <div class="landing-news-controls" id="landingNewsControls" hidden>
             <button type="button" id="landingNewsPrevious" aria-label="Previous article" aria-controls="landingNewsSlides">↑</button>
             <button type="button" id="landingNewsNext" aria-label="Next article" aria-controls="landingNewsSlides">↓</button>
           </div>
-          <button type="button" id="landingNewsToggle" aria-expanded="true" aria-controls="landingNewsBody" hidden>Hide news</button>
         </header>
-        <div id="landingNewsBody" class="landing-news-body">
+        <div id="landingNewsBody" class="landing-news-body" hidden>
           <p id="landingNewsStatus" class="landing-news-status" role="status">Loading news…</p>
           <ol id="landingNewsSlides" class="landing-news-slides" aria-label="Recent articles" tabindex="0" hidden></ol>
           <footer class="landing-news-footer">

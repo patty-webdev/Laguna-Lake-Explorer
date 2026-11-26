@@ -6,7 +6,7 @@
   const landing = document.getElementById('landingScreen');
   const slides = document.getElementById('landingNewsSlides');
   const status = document.getElementById('landingNewsStatus');
-  const title = document.getElementById('landingNewsTitle');
+  const news = document.getElementById('landingNews');
   const panel = document.getElementById('landingNewsBody');
   const toggle = document.getElementById('landingNewsToggle');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -229,7 +229,7 @@
   }
 
   async function loadNews(manual = false) {
-    if (loading || landing.hidden || document.hidden) return;
+    if (loading || news.hidden || landing.hidden || document.hidden) return;
     loading = true;
     try {
       if (navigator.locks?.request) await navigator.locks.request(cacheKey, () => refreshFeed(manual));
@@ -248,21 +248,22 @@
     const height = panel.hidden ? 0 : panel.getBoundingClientRect().height;
     const opacity = panel.hidden ? '0' : getComputedStyle(panel).opacity;
     panelAnimation?.cancel();
-    toggle.textContent = show ? 'Hide news' : 'Show news';
+    toggle.textContent = show ? 'Hide News' : 'News';
     toggle.setAttribute('aria-expanded', String(show));
     panel.inert = !show;
     if (show) {
+      news.hidden = false;
       panel.hidden = false;
-      title.hidden = false;
       updateControls();
     }
 
     function finish() {
       panel.hidden = !show;
-      title.hidden = !show;
+      news.hidden = !show;
       panel.classList.remove('landing-news-animating');
       panelAnimation = undefined;
       updateControls();
+      if (show) loadNews();
     }
     if (reducedMotion.matches || !panel.animate) {
       finish();
