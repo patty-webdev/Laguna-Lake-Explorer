@@ -15,8 +15,8 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=news-headlines" rel="stylesheet" />
-    <script src="./landing-news.js?v=three-news-rows" defer></script>
+    <link href="./styles.css?v=news-toggle-transition" rel="stylesheet" />
+    <script src="./landing-news.js?v=news-toggle-transition" defer></script>
   </head>
   <body class="landing-active">
     <div id="map" aria-label="Interactive Laguna de Bay map"></div>
@@ -50,14 +50,17 @@
             <button type="button" id="landingNewsPrevious" aria-label="Previous article" aria-controls="landingNewsSlides">↑</button>
             <button type="button" id="landingNewsNext" aria-label="Next article" aria-controls="landingNewsSlides">↓</button>
           </div>
+          <button type="button" id="landingNewsToggle" aria-expanded="true" aria-controls="landingNewsBody" hidden>Hide news</button>
         </header>
-        <p id="landingNewsStatus" class="landing-news-status" role="status">Loading news…</p>
-        <ol id="landingNewsSlides" class="landing-news-slides" aria-label="Recent articles" tabindex="0" hidden></ol>
-        <footer class="landing-news-footer">
-          <button type="button" id="landingNewsRetry" hidden>Retry feed</button>
-          <a id="landingNewsAll" target="_blank" rel="noopener noreferrer">Open Google News ↗</a>
-          <span id="landingNewsPosition"></span>
-        </footer>
+        <div id="landingNewsBody" class="landing-news-body">
+          <p id="landingNewsStatus" class="landing-news-status" role="status">Loading news…</p>
+          <ol id="landingNewsSlides" class="landing-news-slides" aria-label="Recent articles" tabindex="0" hidden></ol>
+          <footer class="landing-news-footer">
+            <button type="button" id="landingNewsRetry" hidden>Retry feed</button>
+            <a id="landingNewsAll" target="_blank" rel="noopener noreferrer">Open Google News ↗</a>
+            <span id="landingNewsPosition"></span>
+          </footer>
+        </div>
       </section>
       <footer class="landing-credits">
         <p><strong>WITM 101 Advanced Web Design and Programming</strong></p>

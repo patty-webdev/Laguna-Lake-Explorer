@@ -361,7 +361,13 @@
 .landing-news-header,.landing-news-footer{
  display:flex;align-items:center;justify-content:space-between;gap:10px
 }
-.landing-news h2{margin:0;font:700 1.15rem/1.15 'Space Grotesk',sans-serif}
+.landing-news h2{margin:0 auto 0 0;font:700 1.15rem/1.15 'Space Grotesk',sans-serif}
+.landing-news:has(.landing-news-body[hidden]){
+ justify-self:end;padding:0;border:0;background:none;box-shadow:none
+}
+.landing-news-body:not([hidden]){display:flow-root}
+.landing-news-animating{overflow:hidden}
+#landingNewsToggle{flex:none;white-space:nowrap;font-size:.75rem}
 .landing-news-controls:not([hidden]){display:flex;gap:5px}
 .landing-news button{
  min-height:40px;min-width:40px;padding:0 8px;

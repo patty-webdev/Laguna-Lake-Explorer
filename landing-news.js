@@ -6,6 +6,10 @@
   const landing = document.getElementById('landingScreen');
   const slides = document.getElementById('landingNewsSlides');
   const status = document.getElementById('landingNewsStatus');
+  const title = document.getElementById('landingNewsTitle');
+  const panel = document.getElementById('landingNewsBody');
+  const toggle = document.getElementById('landingNewsToggle');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const controls = document.getElementById('landingNewsControls');
   const previous = document.getElementById('landingNewsPrevious');
   const next = document.getElementById('landingNewsNext');
@@ -148,6 +152,7 @@
   function updateControls() {
     const index = activeSlide();
     const total = slides.children.length;
+    controls.hidden = panel.hidden || total <= visibleArticles;
     previous.disabled = index <= 0;
     next.disabled = index + visibleArticles >= total;
     position.textContent = total > visibleArticles ? `${index + 1}–${index + visibleArticles} / ${total}` : '';
@@ -160,14 +165,13 @@
     if (!target) return;
     slides.scrollTo({
       top: target.offsetTop - slides.firstElementChild.offsetTop,
-      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+      behavior: reducedMotion.matches ? 'instant' : 'smooth'
     });
   }
 
   function render(articles, fetchedAt, provider, stale = false) {
     slides.replaceChildren(...articles.map(makeSlide));
     slides.hidden = articles.length === 0;
-    controls.hidden = articles.length <= visibleArticles;
     slides.scrollTop = 0;
     updateControls();
     const lastUpdate = `${provider} · Updated ${updateFormat.format(fetchedAt)}`;
@@ -237,6 +241,41 @@
 
   previous.addEventListener('click', () => moveSlide(-1));
   next.addEventListener('click', () => moveSlide(1));
+  let panelAnimation;
+  toggle.hidden = false;
+  toggle.addEventListener('click', () => {
+    const show = toggle.getAttribute('aria-expanded') === 'false';
+    const height = panel.hidden ? 0 : panel.getBoundingClientRect().height;
+    const opacity = panel.hidden ? '0' : getComputedStyle(panel).opacity;
+    panelAnimation?.cancel();
+    toggle.textContent = show ? 'Hide news' : 'Show news';
+    toggle.setAttribute('aria-expanded', String(show));
+    panel.inert = !show;
+    if (show) {
+      panel.hidden = false;
+      title.hidden = false;
+      updateControls();
+    }
+
+    function finish() {
+      panel.hidden = !show;
+      title.hidden = !show;
+      panel.classList.remove('landing-news-animating');
+      panelAnimation = undefined;
+      updateControls();
+    }
+    if (reducedMotion.matches || !panel.animate) {
+      finish();
+      return;
+    }
+
+    panel.classList.add('landing-news-animating');
+    panelAnimation = panel.animate([
+      { height: `${height}px`, opacity },
+      { height: show ? `${panel.scrollHeight}px` : '0px', opacity: show ? 1 : 0 }
+    ], { duration: 240, easing: 'ease-in-out' });
+    panelAnimation.onfinish = finish;
+  });
   retry.addEventListener('click', () => loadNews(true));
   slides.addEventListener('scroll', updateControls, { passive: true });
   document.addEventListener('landing:ready', () => {
