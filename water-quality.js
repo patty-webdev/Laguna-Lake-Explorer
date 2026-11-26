@@ -37,44 +37,58 @@ function numericValue(record){
 }
 
 function drawQualityHistory(canvas,series,first,last,guideline){
+ const width=canvas.clientWidth,height=canvas.clientHeight;
+ if(!width||!height)return;
  const context=canvas.getContext('2d');
- if(!context)return false;
- const monthIndex=period=>Number(period.slice(0,4))*12+Number(period.slice(5));
+ if(!context)return;
+ const pixelRatio=window.devicePixelRatio||1;
+ canvas.width=Math.round(width*pixelRatio);
+ canvas.height=Math.round(height*pixelRatio);
+ context.scale(pixelRatio,pixelRatio);
+ const monthIndex=period=>Number(period.slice(0,4))*12+Number(period.slice(5))-1;
  const start=monthIndex(first),end=monthIndex(last);
  const values=series.flatMap(({points})=>points.map(({value})=>value));
  const limits=guideline?(guideline.min===0?[guideline.max]:[guideline.min,guideline.max].filter(Number.isFinite)):[];
  values.push(...limits);
  const min=Math.min(...values),max=Math.max(...values);
- const padding=min===max?Math.abs(min)*.1||1:(max-min)*.1;
- const low=Math.max(0,min-padding),high=max+padding;
- const left=88,right=canvas.width-22,top=20,bottom=canvas.height-48;
- const x=period=>start===end?(left+right)/2:left+(monthIndex(period)-start)/(end-start)*(right-left);
+ const padding=min===max?Math.abs(min)*.1||1:(max-min)*.08;
+ const rawStep=(max-min+2*padding)/4;
+ const magnitude=10**Math.floor(Math.log10(rawStep));
+ const step=[1,2,2.5,5,10].map(factor=>factor*magnitude).find(value=>value>=rawStep);
+ const low=Math.max(0,Math.floor((min-padding)/step))*step;
+ const high=Math.ceil((max+padding)/step)*step;
+ const left=49,right=width-34,top=14,bottom=height-33;
+ const x=month=>start===end?(left+right)/2:left+(month-start)/(end-start)*(right-left);
  const y=value=>bottom-(value-low)/(high-low)*(bottom-top);
  const number=new Intl.NumberFormat('en',{maximumSignificantDigits:4});
 
- context.clearRect(0,0,canvas.width,canvas.height);
- if(limits.length===2){
+ if(limits.length){
+  const upper=Math.min(high,guideline.max),lower=Math.max(low,guideline.min);
   context.fillStyle='#a6f3c626';
-  context.fillRect(left,y(limits[1]),right-left,y(limits[0])-y(limits[1]));
+  context.fillRect(left,y(upper),right-left,y(lower)-y(upper));
  }
- context.font='20px system-ui';
+ context.font='12px system-ui';
  context.textAlign='right';
  context.textBaseline='middle';
  context.fillStyle='#cbd5e1';
  context.strokeStyle='#334155';
- for(const fraction of [0,.5,1]){
-  const value=low+(high-low)*fraction;
+ const tickCount=Math.round((high-low)/step);
+ for(let tick=0;tick<=tickCount;tick++){
+  const value=low+step*tick;
   context.fillText(number.format(value),left-9,y(value));
   context.beginPath();
   context.moveTo(left,y(value));
   context.lineTo(right,y(value));
   context.stroke();
  }
- context.textAlign='left';
- context.fillText(researchMonth(first),left,bottom+27);
- if(first!==last){
-  context.textAlign='right';
-  context.fillText(researchMonth(last),right,bottom+27);
+ const dateLabel=new Intl.DateTimeFormat('en',{month:'short',year:'2-digit',timeZone:'UTC'});
+ const monthStep=Math.max(1,Math.ceil((end-start)/Math.max(1,Math.floor((right-left)/68))));
+ const months=[start];
+ for(let month=start+monthStep;month<=end-monthStep;month+=monthStep)months.push(month);
+ if(end!==start)months.push(end);
+ context.textAlign='center';
+ for(const month of months){
+  context.fillText(dateLabel.format(new Date(Date.UTC(Math.floor(month/12),month%12,1))),x(month),bottom+17);
  }
 
  context.strokeStyle='#a6f3c6';
@@ -86,26 +100,34 @@ function drawQualityHistory(canvas,series,first,last,guideline){
   context.stroke();
  }
  context.setLineDash([]);
- context.lineWidth=3;
- for(const {points,color} of series){
+ context.lineWidth=2;
+ for(const {points,color,comparison} of series){
   context.strokeStyle=color;
   context.fillStyle=color;
   let previous;
   for(const {period,value} of points){
-   const point={x:x(period),y:y(value),month:monthIndex(period)};
+   const month=monthIndex(period);
+   const point={x:x(month),y:y(value),month};
    if(previous&&point.month===previous.month+1){
+    context.setLineDash(comparison?[5,4]:[]);
     context.beginPath();
     context.moveTo(previous.x,previous.y);
     context.lineTo(point.x,point.y);
     context.stroke();
    }
+   context.setLineDash([]);
    context.beginPath();
-   context.arc(point.x,point.y,5,0,2*Math.PI);
+   if(comparison){
+    context.moveTo(point.x,point.y-5);
+    context.lineTo(point.x+5,point.y);
+    context.lineTo(point.x,point.y+5);
+    context.lineTo(point.x-5,point.y);
+    context.closePath();
+   }else context.arc(point.x,point.y,4,0,2*Math.PI);
    context.fill();
    previous=point;
   }
  }
- return true;
 }
 
 function initializeQualityMap(map,overview,coverageBounds){
@@ -116,6 +138,12 @@ function initializeQualityMap(map,overview,coverageBounds){
  const state={active:false,openStation,setActive};
  const exploreButton=$('consoleExplore'),qualityButton=$('consoleWaterQuality'),historyButton=$('consoleHistory');
  const historyPanel=$('historyPanel'),explorationTools=$('explorationTools');
+ const historyResults=$('historyResults'),historyCanvas=$('qualityHistoryChart');
+ let historyPlot=null;
+ const redrawHistory=()=>{
+  if(historyPlot&&!historyCanvas.hidden)drawQualityHistory(historyCanvas,...historyPlot);
+ };
+ new ResizeObserver(redrawHistory).observe(historyCanvas);
  const historyParameter=$('historyParameter'),historyStation=$('historyStation'),historyCompare=$('historyCompare');
  const share=$('qualityShare'),shareUrl=$('qualityShareUrl'),shareStatus=$('qualityShareStatus');
  let historyOpen=false;
@@ -125,6 +153,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   explorationTools.hidden=historyOpen||state.active;
   panel.hidden=historyOpen||!state.active;
   historyPanel.hidden=!historyOpen;
+  historyResults.hidden=!historyOpen;
   if(map.getLayer('history-stations')){
    map.setLayoutProperty('history-stations','visibility',historyOpen?'visible':'none');
    map.setLayoutProperty('quality-stations','visibility',state.active&&!historyOpen?'visible':'none');
@@ -144,7 +173,8 @@ function initializeQualityMap(map,overview,coverageBounds){
   setActive(true);
   if(stationId)historyStation.value=stationId;
   showConsoleSection(true);
-  setMobilePanel(true);
+  setMobilePanel(false);
+  if(window.matchMedia(mobileLayout).matches)$('panelToggle').focus({preventScroll:true});
   renderHistory();
  }
 
@@ -214,7 +244,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   map.setPaintProperty('history-stations','circle-color',[
    'match',['get','stationId'],historyStation.value||'-','#67e8f9',historyCompare.value||'--','#fbbf24','#0e7490'
   ]);
-  const canvas=$('qualityHistoryChart'),message=$('qualityHistoryStatus'),key=$('historyChartKey');
+  const canvas=historyCanvas,message=$('qualityHistoryStatus'),key=$('historyChartKey');
   const details=$('qualityHistoryDetails'),list=$('qualityHistoryList');
   const ids=[historyStation.value,historyCompare.value].filter(Boolean);
   const series=ids.map((id,index)=>{
@@ -223,20 +253,23 @@ function initializeQualityMap(map,overview,coverageBounds){
    const points=readings.filter(record=>record.qualifier==='exact_as_printed')
     .map(record=>({period:record.period,value:numericValue(record)}))
     .filter(point=>Number.isFinite(point.value)&&point.value>=0);
-   return {name:readings[0].station_name,readings,points,color:['#67e8f9','#fbbf24'][index]};
+   return {name:readings[0].station_name,readings,points,color:['#67e8f9','#fbbf24'][index],comparison:index===1};
   });
   const readings=series.flatMap(item=>item.readings);
   const total=series.reduce((count,item)=>count+item.points.length,0);
   const unit=readings[0]?.unit;
+  const measure=researchLabels[historyParameter.value];
+  $('historyResultsTitle').textContent=unit?measure+' ('+unit+')':'Historical Trends';
   const guideline=classCGuidelines[historyParameter.value];
   const guide=guideline&&readings.every(record=>record.unit===guideline.unit)?guideline:null;
   list.replaceChildren();
   key.replaceChildren();
   key.hidden=true;
   canvas.hidden=true;
+  historyPlot=null;
   details.hidden=!readings.length;
   if(!readings.length){
-   message.textContent=available.size?'Choose a monitoring station to see its history.':'No mapped stations have historical readings for this parameter.';
+   message.textContent=available.size?'Select a station on the map or in Map tools to see its history.':'No stations have historical readings for this parameter.';
    return;
   }
   for(const item of series){
@@ -251,18 +284,28 @@ function initializeQualityMap(map,overview,coverageBounds){
    return;
   }
   const periods=readings.map(record=>record.period).sort();
-  canvas.hidden=!drawQualityHistory(canvas,series,periods[0],periods.at(-1),guide);
-  for(const {name,color} of series){
+  historyPlot=[series,periods[0],periods.at(-1),guide];
+  canvas.hidden=false;
+  redrawHistory();
+  for(const {name,color,comparison} of series){
    const item=researchElement('li',name);
    const swatch=researchElement('span');
    swatch.setAttribute('aria-hidden','true');
    swatch.style.backgroundColor=color;
+   if(comparison)swatch.className='history-comparison';
    item.prepend(swatch);
    key.append(item);
   }
-  if(guide)key.append(researchElement('li','Class C guideline '+guide.label));
+  if(guide){
+   const item=researchElement('li','Class C guideline '+guide.label);
+   const swatch=researchElement('span');
+   swatch.className='history-guideline';
+   swatch.setAttribute('aria-hidden','true');
+   item.prepend(swatch);
+   key.append(item);
+  }
   key.hidden=false;
-  message.textContent=researchLabels[historyParameter.value]+' ('+unit+') / '+total+' of '+readings.length+' readings plotted. Lines connect consecutive months.';
+  message.textContent=total+' of '+readings.length+' reported readings plotted. Lines connect consecutive months with exact readings.';
  }
 
  function renderCoverage(entries){

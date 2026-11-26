@@ -15,7 +15,7 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=presentation-transition" rel="stylesheet" />
+    <link href="./styles.css?v=historical-chart" rel="stylesheet" />
     <script src="./landing-news.js?v=hide-news-label" defer></script>
   </head>
   <body class="landing-active">
@@ -206,17 +206,20 @@
           <select id="historyParameter"></select>
           <label for="historyCompare">Compare with another station</label>
           <select id="historyCompare" disabled><option value="">None</option></select>
+        </section>
+      </aside>
+      <section id="historyResults" class="history-results" aria-labelledby="historyResultsTitle" hidden>
+          <h2 id="historyResultsTitle">Historical Trends</h2>
           <ul id="historyChartKey" class="quality-guideline-key" hidden></ul>
           <p id="qualityHistoryStatus" role="status">Loading historical readings…</p>
-          <canvas id="qualityHistoryChart" width="600" height="270" role="img"
+          <canvas id="qualityHistoryChart" width="600" height="240" role="img"
             aria-label="Historical monthly readings for the selected stations and parameter"
             aria-describedby="qualityHistoryStatus" hidden></canvas>
           <details id="qualityHistoryDetails" hidden>
             <summary>Historical readings and sources</summary>
             <ul id="qualityHistoryList"></ul>
           </details>
-        </section>
-      </aside>
+      </section>
       <div class="compass">
         <div class="compass-dial" aria-hidden="true">
           <div class="compass-head" id="compassHead"><span></span></div>
@@ -330,7 +333,7 @@
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
     <script src="./research.js?v=annual-coverage"></script>
-    <script src="./water-quality.js?v=coverage-and-trends"></script>
+    <script src="./water-quality.js?v=historical-chart"></script>
     <script src="./app.js?v=lazy-buildings"></script>
     <script src="./tutorial.js?v=station-selection"></script>
   </body>
