@@ -21,6 +21,12 @@
     .slide::before{content:'';position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#a6f3c6,#278e86,transparent)}
     .slide-title{background:radial-gradient(ellipse at 85% 5%,#255858,transparent 55%),linear-gradient(125deg,#143c42,#091f29)}
     .slide-title h1{font-size:clamp(3.1rem,8vw,7.4rem);line-height:.98;max-width:10ch}
+    .slide-with-photo{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:center;gap:clamp(16px,4vw,48px)}
+    .slide-with-photo[hidden]{display:none}
+    .deck-photo{margin:0;min-width:0}
+    .deck-photo img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:12px}
+    .deck-photo figcaption{margin-top:8px;color:#b2ced0;font-size:.78rem;line-height:1.5}
+    .deck-photo a{color:#a6f3c6}
     .slide .deck-course{margin-top:18px;font-weight:700;color:#a6f3c6}
     .slide-technical{justify-content:flex-start}
     .deck-endpoints{display:grid;gap:8px;margin:0 0 14px}
@@ -33,6 +39,7 @@
     @media(max-width:690px){
       .deck-code-grid,.deck-endpoints>div{grid-template-columns:1fr}
       .slide{min-height:min(60svh,32rem)}
+      .slide-with-photo{grid-template-columns:minmax(0,1fr)}
     }
     .slide h1,.slide h2{margin:0 0 .55em;font:700 clamp(2rem,5vw,4rem)/1.06 'Space Grotesk',sans-serif;letter-spacing:-.025em}
     .slide h1 span,.slide h3{color:#a6f3c6}
@@ -62,6 +69,8 @@
       .slide :is(h1 span,h3,a,.deck-byline,.slide-source,.deck-grid strong){color:#183a38}
       .deck-grid>div,.deck-endpoints>div,.deck-code-grid pre{background:white;border-color:#aaa}
       .slide::before{display:none}
+      .deck-photo{max-width:24rem;margin-top:16px}
+      .deck-photo figcaption,.deck-photo a{color:#183a38}
       .slide .deck-course,.deck-endpoints :is(dt,dd,code),.deck-code-grid pre{color:#183a38}
       .deck-code-grid pre{max-height:none;white-space:pre-wrap;overflow-wrap:anywhere}
     }
@@ -74,51 +83,62 @@
       <button id="deckFullscreen" class="ghost" type="button" hidden>Full screen</button>
     </header>
 
-    <section class="slide slide-title" aria-labelledby="slide-title">
-      <h1 id="slide-title" tabindex="-1">Laguna Lake <span>Explorer</span></h1>
-      <p>An interactive map and historical water-quality archive for Laguna de Bay.</p>
-      <p class="deck-course">WITM 101 Advanced Web Design and Programming</p>
-      <p class="deck-byline">Patrick A. Cueto, Mike Angelo Monzon, and Christine Villanueva</p>
+    <section class="slide slide-title slide-with-photo" aria-labelledby="slide-title">
+      <div>
+        <h1 id="slide-title" tabindex="-1">Laguna Lake <span>Explorer</span></h1>
+        <p>Explore Laguna de Bay in 3D, look up past water-quality readings, and find news about the lake.</p>
+        <p class="deck-course">WITM 101 Advanced Web Design and Programming</p>
+        <p class="deck-byline">Patrick A. Cueto, Mike Angelo Monzon, and Christine Villanueva</p>
+      </div>
+      <figure class="deck-photo">
+        <img src="./public/presentation-laguna-sunset.jpg" alt="Sunset over the waters of Laguna de Bay" width="960" height="640" fetchpriority="high" />
+        <figcaption><a href="https://commons.wikimedia.org/wiki/File:Laguna_Bay_Sunset.jpg">Laguna Bay Sunset</a> by Ranieljosecastaneda, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Cropped for display.</figcaption>
+      </figure>
     </section>
 
     <section class="slide" aria-labelledby="slide-purpose">
       <h2 id="slide-purpose" tabindex="-1">What does the app help us do?</h2>
       <div class="deck-grid">
-        <div><h3>Explore the lake</h3><p>Navigate bays and surrounding areas using satellite imagery and 3D terrain.</p></div>
-        <div><h3>Inspect measurements</h3><p>See what LLDA reported for a station, parameter, and sampling month.</p></div>
-        <div><h3>Compare over time</h3><p>Follow historical station readings and trace them back to report pages.</p></div>
+        <div><h3>Explore the lake</h3><p>See the bays, nearby communities, and surrounding terrain on a 3D satellite map.</p></div>
+        <div><h3>Look up a reading</h3><p>Choose a monitoring station and month to see what the Laguna Lake Development Authority (LLDA) reported.</p></div>
+        <div><h3>Compare over time</h3><p>Follow a station’s readings across months and open the report pages behind them.</p></div>
+        <div><h3>Find related news</h3><p>Open the landing-page news card to find coverage about Laguna de Bay and visit the original articles.</p></div>
       </div>
     </section>
 
     <section class="slide" aria-labelledby="slide-map">
-      <h2 id="slide-map" tabindex="-1">How the map is integrated</h2>
-      <p>MapLibre GL JS renders the map in the browser. Our JavaScript configures the tile sources, layers, camera, and station interactions.</p>
+      <h2 id="slide-map" tabindex="-1">How the map is built</h2>
+      <p>MapLibre GL JS assembles small map images called tiles as you move and zoom. Our code adds terrain, station markers, and camera controls.</p>
       <div class="deck-grid">
-        <div><h3>Basemaps</h3><p>Esri World Imagery for Explore and OpenStreetMap for Water Quality.</p></div>
-        <div><h3>3D layers</h3><p>AWS Terrain Tiles for elevation and OpenFreeMap for building footprints.</p></div>
-        <div><h3>Data overlays</h3><p>Bundled GeoJSON for the regional mask and station points generated from historical coordinates.</p></div>
+        <div><h3>What you see</h3><p>Explore uses Esri satellite imagery. Water Quality uses an OpenStreetMap street map so station markers are easier to spot.</p></div>
+        <div><h3>What gives it depth</h3><p>AWS elevation data shapes the terrain. OpenFreeMap provides buildings when you zoom in.</p></div>
+        <div><h3>Where stations appear</h3><p>Station markers use coordinates recorded in the historical research package.</p></div>
       </div>
-      <p class="slide-source">The site is static. The browser requests external map tiles and loads the bundled research files over HTTP.</p>
+      <p class="slide-source">The browser loads the map tiles and research files. A Vercel function fetches the news feed.</p>
     </section>
 
     <section class="slide slide-technical" aria-labelledby="slide-endpoints">
-      <h2 id="slide-endpoints" tabindex="-1">Map libraries and endpoints</h2>
+      <h2 id="slide-endpoints" tabindex="-1">APIs, feeds, and map services</h2>
+      <p>Each service supplies a different part of the app, from satellite imagery to headlines.</p>
       <dl class="deck-endpoints">
         <div><dt>MapLibre GL JS 5.6.2</dt><dd>Browser map library<code>https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js</code></dd></div>
         <div><dt>Esri World Imagery</dt><dd>Satellite raster tiles<code>https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}</code></dd></div>
         <div><dt>OpenStreetMap</dt><dd>Water Quality raster tiles<code>https://tile.openstreetmap.org/{z}/{x}/{y}.png</code></dd></div>
         <div><dt>AWS Terrain Tiles</dt><dd>Terrarium elevation tiles<code>https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png</code></dd></div>
         <div><dt>OpenFreeMap</dt><dd>Vector tiles and building footprints<code>https://tiles.openfreemap.org/planet</code></dd></div>
+        <div><dt>Google News RSS</dt><dd>Supplies Laguna Lake headlines, publishers, dates, and article links.<code>https://news.google.com/rss/search</code></dd></div>
+        <div><dt>Laguna Lake News API</dt><dd>Our Vercel endpoint turns Google News RSS into JSON the landing page can display. Media Cloud can serve as a fallback when configured.<code>/api/news/laguna-lake</code></dd></div>
       </dl>
       <p class="slide-source">Tile templates use zoom, column, and row coordinates. Esri orders them as row then column.</p>
     </section>
 
     <section class="slide slide-technical" aria-labelledby="slide-code">
-      <h2 id="slide-code" tabindex="-1">Map integration in code</h2>
+      <h2 id="slide-code" tabindex="-1">What the map code controls</h2>
+      <p>One part sets the starting camera view. The other tells the map where to download satellite images.</p>
       <div class="deck-code-grid">
         <div>
           <h3>Map initialization</h3>
-          <p class="slide-source">The camera starts at the landing view and applies the pitch limit for the current mode.</p>
+          <p class="slide-source">The camera settings control where the view starts, how far you can zoom, and how much you can tilt.</p>
           <pre tabindex="0" aria-label="MapLibre constructor from app.js"><code>const map = new maplibregl.Map({
     container: 'map', style, ...landingCamera, maxPitch: 78, minZoom: 3, maxZoom: 19, antialias: true,
     renderWorldCopies: false, maxBounds: [[94, -7], [153, 32]],
@@ -132,7 +152,7 @@
         </div>
         <div>
           <h3>Satellite source</h3>
-          <p class="slide-source">The raster source specifies the exact Esri endpoint, tile size, zoom limit, bounds, and attribution.</p>
+          <p class="slide-source">The satellite source lists the Esri tile address, the area covered, and the imagery credit.</p>
           <pre tabindex="0" aria-label="Esri raster source from app.js"><code>satellite: {
         type: 'raster',
         tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
@@ -144,47 +164,56 @@
       <p class="slide-source">Excerpts from <a href="./app.js">app.js</a>. The flat Water Quality raster source is configured in <a href="./water-quality.js">water-quality.js</a>.</p>
     </section>
 
-    <section class="slide" aria-labelledby="slide-explore">
-      <h2 id="slide-explore" tabindex="-1">Explore and navigate</h2>
-      <ul>
-        <li>The landing map rotates at a 75-degree pitch, with terrain on and zoom set to 9.5.</li>
-        <li>The Exploration Console offers 3D and top-down views, an elevation toggle, and shortcuts to the lake and its bays.</li>
-        <li>The regional views show the Philippines and the PAGASA Area of Responsibility.</li>
-      </ul>
+    <section class="slide slide-with-photo" aria-labelledby="slide-explore">
+      <div>
+        <h2 id="slide-explore" tabindex="-1">Take a tour of the lake</h2>
+        <ol>
+          <li>Click <strong>Explore</strong> to enter the map.</li>
+          <li>Choose a bay in the Exploration Console to fly to that area.</li>
+          <li>Switch between 3D and top-down views, or use the elevation toggle to see how the terrain changes.</li>
+        </ol>
+        <p class="slide-source">Zoom out with the regional shortcuts to view the Philippines or the area PAGASA monitors for tropical cyclones.</p>
+      </div>
+      <figure class="deck-photo">
+        <img src="./public/laguna-news-fallback.jpg" alt="The town of Paete and Laguna de Bay viewed from the hills" width="330" height="248" loading="lazy" />
+        <figcaption>Laguna de Bay from Paete, Laguna. <a href="https://commons.wikimedia.org/wiki/File:Paete,_Laguna_and_Laguna_Lake_17Apr2025.jpg">Photo by RFNirmala</a> · <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</figcaption>
+      </figure>
     </section>
 
     <section class="slide" aria-labelledby="slide-quality">
-      <h2 id="slide-quality" tabindex="-1">Water Quality map</h2>
-      <ul>
-        <li>Choose a parameter and month, then select a station to see all eight configured parameters and their available values.</li>
-        <li>Green and red indicate how an eligible reading compares with the DENR Class C guideline. Gray means the reading was unassessed.</li>
-        <li>The heatmap shows relative intensity around mapped readings. It can extend beyond the shoreline.</li>
-      </ul>
+      <h2 id="slide-quality" tabindex="-1">Read the water-quality map</h2>
+      <ol>
+        <li>Choose a month and a measurement, such as dissolved oxygen.</li>
+        <li>Click a station to see its available readings and the original report reference.</li>
+        <li>Use the colors to compare eligible readings with the DENR Class C guideline. Green meets the guideline, red falls outside it, and gray means the reading wasn’t assessed.</li>
+      </ol>
+      <p class="slide-source">The heatmap highlights patterns around mapped stations. Its colors can extend beyond the lake’s shoreline.</p>
       <p class="slide-source"><a href="https://r9.emb.gov.ph/wp-content/uploads/2025/08/ANNUAL-REGIONAL-WATER-QUALITY-STATUS-REPORT-2023.pdf">DENR guideline reference</a></p>
     </section>
 
     <section class="slide" aria-labelledby="slide-trends">
-      <h2 id="slide-trends" tabindex="-1">Historical Trends and Research</h2>
+      <h2 id="slide-trends" tabindex="-1">Compare readings and check sources</h2>
       <div class="deck-grid">
-        <div><h3>Historical Trends</h3><p>Select a station on the map or in the dropdown to update the graph. Gaps show months without an exact numeric reading.</p></div>
-        <div><h3>Research archive</h3><p>Search measurements, inspect coverage, review source references, and download the original package files.</p></div>
-        <div><h3>Water anomalies</h3><p>LLDA sources describe possible causes such as nutrient inputs, algal blooms, and wind-driven sediment. A specific event needs its own evidence.</p></div>
+        <div><h3>Historical Trends</h3><p>Choose a station to follow its readings over time. A gap means there’s no exact number for that month.</p></div>
+        <div><h3>Research archive</h3><p>Search readings, see which months have data, and find the report page behind a value.</p></div>
+        <div><h3>Unusual readings</h3><p>Read about possible factors such as nutrient inputs, algal blooms, or sediment moved by wind. Identifying a cause requires evidence from the event itself.</p></div>
       </div>
     </section>
 
     <section class="slide" aria-labelledby="slide-ai">
-      <h2 id="slide-ai" tabindex="-1">AI-assisted data gathering</h2>
+      <h2 id="slide-ai" tabindex="-1">How the readings were gathered</h2>
       <ol>
-        <li><strong>Find sources.</strong> Use AI to help organize candidate LLDA reports and identify relevant tables.</li>
-        <li><strong>Structure the records.</strong> Transcribe station, month, parameter, value, unit, and report page into a consistent format.</li>
-        <li><strong>Check the original.</strong> Compare transcriptions with the report, keep qualifiers such as &lt;0.1, and flag entries that still need review.</li>
-        <li><strong>Publish the package.</strong> Store records as JSON and CSV alongside a source inventory and coverage summary.</li>
+        <li><strong>Find the reports.</strong> AI helped organize potential LLDA reports and identify tables to review.</li>
+        <li><strong>Record each reading.</strong> Save the station, month, measurement, value, unit, and report page.</li>
+        <li><strong>Check the report.</strong> Keep details such as &lt;0.1 and mark entries that still need review.</li>
+        <li><strong>Make the data available.</strong> Bundle the records in JSON and CSV with a list of sources and months covered.</li>
       </ol>
       <p class="slide-source">LLDA reports are the source of the measurements. The data package records where manual review is still pending. <a href="./public/data/Laguna_Lake_Consolidated_Research_2026/README.md">Research package notes</a></p>
     </section>
 
     <section class="slide" aria-labelledby="slide-coverage">
       <h2 id="slide-coverage" tabindex="-1">What the dataset covers</h2>
+      <p>The archive contains readings from selected months. BOD stands for biochemical oxygen demand, a measure of how much oxygen microorganisms use to break down material in the water.</p>
       <div class="deck-grid">
         <div><strong>225 readings</strong><p>October to December 2024 across five parameters.</p></div>
         <div><strong>192 readings</strong><p>January to June 2026 for dissolved oxygen and BOD.</p></div>
@@ -192,16 +221,26 @@
         <div><strong>84 readings</strong><p>January to March 2025 for BOD and dissolved oxygen.</p></div>
         <div><strong>2 annual averages</strong><p>Lake-wide BOD for 2023 and 2025.</p></div>
       </div>
-      <p>The monthly transcriptions carry review flags. Nine stations have historical map coordinates, and the archive includes references for reports with no extracted readings.</p>
+      <p class="slide-source">Nine stations have historical map coordinates. The archive flags monthly readings for review and also lists reports whose readings haven’t been extracted.</p>
+    </section>
+
+    <section class="slide" aria-labelledby="slide-news">
+      <h2 id="slide-news" tabindex="-1">Read news about Laguna de Bay</h2>
+      <ol>
+        <li>Click <strong>News</strong> beside Explore on the landing page.</li>
+        <li>Scroll or use the arrows to browse the headlines. Each card shows the publisher and the date supplied by the feed.</li>
+        <li>Click a headline to open the story. Click <strong>Hide News</strong> to return to the full map view.</li>
+      </ol>
+      <p class="slide-source">Google News RSS provides the headlines. A card labeled <strong>Lake photo</strong> shows a general lake view when the feed has no usable article image.</p>
     </section>
 
     <section class="slide" aria-labelledby="slide-demo">
-      <h2 id="slide-demo" tabindex="-1">Live demo</h2>
+      <h2 id="slide-demo" tabindex="-1">Try it yourself</h2>
       <ol>
         <li>Open Explore and fly to one of the lake viewpoints.</li>
         <li>Open Water Quality and choose a station to inspect its reported values and source.</li>
         <li>Open Historical Trends and select a different station to update the chart.</li>
-        <li>Open Research to show the searchable data and possible causes of unusual readings.</li>
+        <li>Open Research to look up a reading, then return to the landing page and open News.</li>
       </ol>
       <a class="deck-action" href="./index.html">Open Laguna Lake Explorer</a>
     </section>
