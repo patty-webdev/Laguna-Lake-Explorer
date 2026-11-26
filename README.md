@@ -2,7 +2,7 @@
 
 Laguna Lake Explorer is an interactive web app for exploring Laguna de Bay and examining historical water-quality readings from the Laguna Lake Development Authority (LLDA). It combines a 3D satellite map, station readings, historical charts, and a searchable research archive in one browser workspace.
 
-The app is built with HTML, CSS, JavaScript, and MapLibre GL JS. The bundled configuration runs from a static HTTP server without a backend, build step, or API key.
+The app is built with HTML, CSS, JavaScript, and MapLibre GL JS. The map and research features run from a static HTTP server. The landing news feed uses an optional Vercel Function.
 
 ## Run locally
 
@@ -12,7 +12,20 @@ Open the project folder in VS Code. With the **Live Server** extension installed
 
 Open [http://localhost:8000](http://localhost:8000). On Windows, use **py** in place of **python** if needed. Serve the folder over HTTP so the browser can fetch its JSON, CSV, and GeoJSON files. Use a WebGL-capable browser with internet access for MapLibre and the external tile providers.
 
+## Private presentation on Vercel
+
+1. Import the repository into Vercel using the **Other** framework preset and the repository root. The app has no build step.
+2. In **Settings → Deployment Protection**, enable **Vercel Authentication** for Preview deployments. Use a protected Preview URL for the presentation. On Hobby, the production domain is public.
+3. In **Settings → Environment Variables**, add `GNEWS_API_KEY` to **Preview**, then create a new Preview deployment. Keep the key in Vercel's environment settings.
+4. Open `/api/news/laguna-lake` on the Preview URL. Confirm it returns JSON with `articles` and `fetchedAt`. Open the landing page, navigate the slider, and verify that the headlines open their publishers.
+
+Use the [GNews plan terms](https://gnews.io/pricing) to confirm coverage for your presentation. For local testing of the feed, run `vercel dev` with `GNEWS_API_KEY` in the shell environment or in the Vercel Development environment. A plain static server can preview the map and layout and cannot run the news function.
+
+The endpoint uses a fixed search for Laguna Lake, Laguna de Bay, and the Laguna Lake Development Authority. It caches successful responses for 30 minutes through Vercel, merges simultaneous upstream requests within the same function instance, and can return a saved response during an outage. The browser also keeps the last successful response.
+
 ## Explore the lake
+
+The landing page shows up to six recent GNews articles in a vertical slider. Use the up and down buttons or swipe inside the panel. Cards show publisher names and publication dates. Categories are inferred from headlines.
 
 The landing map opens at **zoom 9.5** and **75 degrees of pitch**, with 3D terrain on. It starts rotating as the map renders and respects the browser's reduced-motion preference. Select **Explore** to enter the map workspace. On mobile, open **Map tools** to show the Exploration Console.
 

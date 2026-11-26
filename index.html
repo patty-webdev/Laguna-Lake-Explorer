@@ -15,7 +15,8 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=attribution-icon" rel="stylesheet" />
+    <link href="./styles.css?v=landing-news" rel="stylesheet" />
+    <script src="./landing-news.js?v=gnews-retry" defer></script>
   </head>
   <body class="landing-active">
     <div id="map" aria-label="Interactive Laguna de Bay map"></div>
@@ -42,6 +43,22 @@
           <a class="landing-presentation ghost" href="./presentation.html">View Presentation</a>
         </div>
       </div>
+      <section class="landing-news" aria-labelledby="landingNewsTitle">
+        <header class="landing-news-header">
+          <h2 id="landingNewsTitle">Latest News Around Laguna Lake</h2>
+          <div class="landing-news-controls" id="landingNewsControls" hidden>
+            <button type="button" id="landingNewsPrevious" aria-label="Previous article" aria-controls="landingNewsSlides">↑</button>
+            <button type="button" id="landingNewsNext" aria-label="Next article" aria-controls="landingNewsSlides">↓</button>
+          </div>
+        </header>
+        <p id="landingNewsStatus" class="landing-news-status" role="status">Loading news…</p>
+        <ol id="landingNewsSlides" class="landing-news-slides" aria-label="Recent articles" tabindex="0" hidden></ol>
+        <footer class="landing-news-footer">
+          <button type="button" id="landingNewsRetry" hidden>Retry feed</button>
+          <a id="landingNewsAll" target="_blank" rel="noopener noreferrer">Open Google News ↗</a>
+          <span id="landingNewsPosition"></span>
+        </footer>
+      </section>
       <footer class="landing-credits">
         <p><strong>WITM 101 Advanced Web Design and Programming</strong></p>
         <p>Developed by Patrick A. Cueto, Mike Angelo Monzon, and Christine Villanueva</p>
