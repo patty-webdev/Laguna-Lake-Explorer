@@ -364,6 +364,13 @@ async function initializeData() {
     const station = $('stationSelect'), month = $('monthSelect');
     $('stationCount').textContent = stations.size;
     $('parameterCount').textContent = parameters.length;
+    const mappedCount = Array.from(stations.keys()).filter(id => Object.hasOwn(historicalStationLocations, id)).length;
+    const stationCoverage = $('exploreStationCoverage');
+    stationCoverage.textContent = `${mappedCount} of ${stations.size} reported stations are mapped using historical coordinates.`;
+    if (mappedCount < stations.size) {
+      stationCoverage.append(' Readings for the other stations are in the Research archive.');
+    }
+    stationCoverage.hidden = false;
     function updateStationOptions() {
       const selected = station.value;
       const currentNames = new Map(monthly.filter(record => record.period === month.value)

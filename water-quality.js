@@ -36,8 +36,8 @@ function numericValue(record){
  return record.numeric_value==null||String(record.numeric_value).trim()===''?NaN:Number(record.numeric_value);
 }
 
-function qualityStationIcon(map,stationId,color){
- const id=`quality-station-${stationId}-${color.slice(1)}`;
+function stationMarkerIcon(map,stationId,color){
+ const id=`station-marker-${stationId}-${color.slice(1)}`;
  if(map.hasImage(id))return id;
  const size=36,pixelRatio=2;
  const icon=document.createElement('canvas');
@@ -57,6 +57,49 @@ function qualityStationIcon(map,stationId,color){
  context.textAlign='center';
  context.textBaseline='middle';
  context.fillText(stationId,center,center,size-8);
+ map.addImage(id,context.getImageData(0,0,icon.width,icon.height),{pixelRatio});
+ return id;
+}
+
+function exploreStationIcon(map,stationId){
+ const id=`explore-cell-tower-${stationId}`;
+ if(map.hasImage(id))return id;
+ const width=44,height=46,pixelRatio=2;
+ const icon=document.createElement('canvas');
+ icon.width=width*pixelRatio;
+ icon.height=height*pixelRatio;
+ const context=icon.getContext('2d');
+ context.scale(pixelRatio,pixelRatio);
+ const center=width/2;
+ context.lineWidth=2;
+ context.lineCap='round';
+ context.lineJoin='round';
+ context.strokeStyle='#e0faff';
+ context.beginPath();
+ context.moveTo(center-7,22);
+ context.lineTo(center,8);
+ context.lineTo(center+7,22);
+ context.closePath();
+ context.fillStyle='#0e7490';
+ context.fill();
+ context.moveTo(center-4,17);
+ context.lineTo(center+4,17);
+ for(const radius of [7,11]){
+  context.moveTo(center+radius*Math.cos(-Math.PI/4),8+radius*Math.sin(-Math.PI/4));
+  context.arc(center,8,radius,-Math.PI/4,Math.PI/4);
+  context.moveTo(center+radius*Math.cos(3*Math.PI/4),8+radius*Math.sin(3*Math.PI/4));
+  context.arc(center,8,radius,3*Math.PI/4,5*Math.PI/4);
+ }
+ context.stroke();
+ context.beginPath();
+ context.roundRect(3,25,width-6,18,6);
+ context.fillStyle='#0b2530';
+ context.fill();
+ context.fillStyle='#fff';
+ context.font='bold 12px system-ui, sans-serif';
+ context.textAlign='center';
+ context.textBaseline='middle';
+ context.fillText(stationId,width/2,34,width-10);
  map.addImage(id,context.getImageData(0,0,icon.width,icon.height),{pixelRatio});
  return id;
 }
@@ -126,17 +169,19 @@ function drawQualityHistory(canvas,series,first,last,guideline,reveal){
  }
  context.setLineDash([]);
  context.save();
+ const revealEdge=(right+6)*reveal;
  if(reveal<1){
   context.beginPath();
-  context.rect(0,0,(right+6)*reveal,height);
+  context.rect(0,0,revealEdge,height);
   context.clip();
  }
  context.lineWidth=2;
- for(const {points,color,comparison} of series){
+ const plotted=[];
+ for(const {name,points,color,comparison} of series){
   context.strokeStyle=color;
   context.fillStyle=color;
   let previous;
-  for(const {period,value} of points){
+  for(const {period,value,label} of points){
    const month=monthIndex(period);
    const point={x:x(month),y:y(value),month};
    if(previous&&point.month===previous.month+1){
@@ -157,10 +202,12 @@ function drawQualityHistory(canvas,series,first,last,guideline,reveal){
     context.closePath();
    }else context.arc(point.x,point.y,4,0,2*Math.PI);
    context.fill();
+   if(point.x<=revealEdge)plotted.push({...point,period,label,name});
    previous=point;
   }
  }
  context.restore();
+ return plotted;
 }
 
 function initializeQualityMap(map,overview,coverageBounds){
@@ -172,13 +219,55 @@ function initializeQualityMap(map,overview,coverageBounds){
  const exploreButton=$('consoleExplore'),qualityButton=$('consoleWaterQuality'),historyButton=$('consoleHistory');
  const historyPanel=$('historyPanel'),explorationTools=$('explorationTools');
  const historyResults=$('historyResults'),historyCanvas=$('qualityHistoryChart');
+ const historyTooltip=$('historyPointTooltip');
  const historyMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
  let historyPlot=null;
+ let historyPoints=[];
  let historyAnimation=0,historyReveal=1;
  const redrawHistory=()=>{
-  if(historyPlot&&!historyCanvas.hidden)drawQualityHistory(historyCanvas,...historyPlot,historyReveal);
+  if(historyPlot&&!historyCanvas.hidden){
+   historyPoints=drawQualityHistory(historyCanvas,...historyPlot,historyReveal)??[];
+  }
  };
- new ResizeObserver(redrawHistory).observe(historyCanvas);
+ function hideHistoryTooltip(){
+  historyTooltip.hidden=true;
+  historyCanvas.style.cursor='';
+ }
+ function showHistoryTooltip(event){
+  const bounds=historyCanvas.getBoundingClientRect();
+  const x=event.clientX-bounds.left,y=event.clientY-bounds.top;
+  let nearest=null,distance=event.pointerType==='touch'?22:14;
+  for(const point of historyPoints){
+   const gap=Math.hypot(point.x-x,point.y-y);
+   if(gap>=distance)continue;
+   nearest=point;
+   distance=gap;
+  }
+  if(!nearest){
+   hideHistoryTooltip();
+   return;
+  }
+  const matching=historyPoints.filter(point=>point.period===nearest.period&&Math.abs(point.y-nearest.y)<2);
+  historyTooltip.textContent=[researchMonth(nearest.period),...matching.map(point=>point.name+' · '+point.label)].join('\n');
+  historyTooltip.hidden=false;
+  const left=Math.max(0,Math.min(bounds.width-historyTooltip.offsetWidth,nearest.x-historyTooltip.offsetWidth/2));
+  const above=nearest.y-historyTooltip.offsetHeight-9;
+  historyTooltip.style.left=left+'px';
+  historyTooltip.style.top=(above>=0?above:nearest.y+9)+'px';
+  historyCanvas.style.cursor='crosshair';
+ }
+ historyCanvas.addEventListener('pointermove',showHistoryTooltip);
+ historyCanvas.addEventListener('pointerleave',event=>{
+  if(event.pointerType!=='touch')hideHistoryTooltip();
+ });
+ historyCanvas.addEventListener('pointerup',event=>{
+  if(event.pointerType==='touch')showHistoryTooltip(event);
+ });
+ historyCanvas.addEventListener('pointercancel',hideHistoryTooltip);
+ new ResizeObserver(()=>{
+  hideHistoryTooltip();
+  redrawHistory();
+ }).observe(historyCanvas);
  function animateHistory(){
   const start=performance.now();
   historyReveal=historyMotion.matches?1:0;
@@ -195,14 +284,44 @@ function initializeQualityMap(map,overview,coverageBounds){
  const historyParameter=$('historyParameter'),historyStation=$('historyStation'),historyCompare=$('historyCompare');
  const share=$('qualityShare'),shareUrl=$('qualityShareUrl'),shareStatus=$('qualityShareStatus');
  let historyOpen=false;
+ const focusRing=document.createElement('div');
+ focusRing.className='station-focus-ring';
+ focusRing.setAttribute('aria-hidden','true');
+ const focusMarker=new maplibregl.Marker({element:focusRing});
+ let focusedStation='';
+ function clearStationFocus(){
+  focusMarker.remove();
+  focusedStation='';
+ }
+ function indicateStationFocus(id){
+  const location=historicalStationLocations[id];
+  if(!location){
+   clearStationFocus();
+   return;
+  }
+  if(focusedStation===id)return;
+  focusRing.replaceChildren(document.createElement('span'));
+  focusMarker.setLngLat(location.slice(1)).addTo(map);
+  focusedStation=id;
+ }
+
+ function updateExploreStations(){
+  if(!map.getLayer('explore-stations'))return;
+  const visible=!state.active&&!historyOpen&&!document.body.classList.contains('landing-active');
+  map.setLayoutProperty('explore-stations','visibility',visible?'visible':'none');
+  if(!visible)explorePopup.remove();
+ }
 
  function showConsoleSection(showHistory=false){
   historyOpen=showHistory;
+  clearStationFocus();
   explorationTools.hidden=historyOpen||state.active;
   panel.hidden=historyOpen||!state.active;
   historyPanel.hidden=!historyOpen;
   historyResults.hidden=!historyOpen;
+  hideHistoryTooltip();
   if(!historyOpen)cancelAnimationFrame(historyAnimation);
+  updateExploreStations();
   if(map.getLayer('history-stations')){
    map.setLayoutProperty('history-stations','visibility',historyOpen?'visible':'none');
    map.setLayoutProperty('quality-stations','visibility',state.active&&!historyOpen?'visible':'none');
@@ -266,6 +385,8 @@ function initializeQualityMap(map,overview,coverageBounds){
   if(location)flyToStation(location.slice(1));
  });
  document.addEventListener('landing:enter',()=>showConsoleSection());
+ document.addEventListener('explorer:ready',updateExploreStations);
+ const explorePopup=new maplibregl.Popup({className:'station-map-popup',offset:18});
  const popup=new maplibregl.Popup({
   className:'station-map-popup',maxWidth:'min(340px, calc(100vw - 24px))',
   focusAfterOpen:false,offset:18
@@ -300,6 +421,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   const parameterRecords=records.filter(record=>record.parameter===historyParameter.value);
   const available=new Set(parameterRecords.filter(record=>coordinates(record)).map(record=>record.station_id));
   updateStationAvailability(historyStation,available);
+  indicateStationFocus(historyStation.value);
   available.delete(historyStation.value);
   historyCompare.disabled=!historyStation.value;
   if(historyCompare.disabled)historyCompare.value='';
@@ -314,7 +436,7 @@ function initializeQualityMap(map,overview,coverageBounds){
    const readings=parameterRecords.filter(record=>record.station_id===id)
     .sort((a,b)=>a.period.localeCompare(b.period));
    const points=readings.filter(record=>record.qualifier==='exact_as_printed')
-    .map(record=>({period:record.period,value:numericValue(record)}))
+    .map(record=>({period:record.period,value:numericValue(record),label:record.reported_value+' '+record.unit}))
     .filter(point=>Number.isFinite(point.value)&&point.value>=0);
    return {name:readings[0].station_name,readings,points,color:['#67e8f9','#fbbf24'][index],comparison:index===1};
   });
@@ -329,6 +451,8 @@ function initializeQualityMap(map,overview,coverageBounds){
   key.replaceChildren();
   key.hidden=true;
   canvas.hidden=true;
+  hideHistoryTooltip();
+  historyPoints=[];
   cancelAnimationFrame(historyAnimation);
   historyPlot=null;
   details.hidden=!readings.length;
@@ -418,6 +542,7 @@ function initializeQualityMap(map,overview,coverageBounds){
  function render(){
   if(!state.active||!records)return;
   popup.remove();
+  clearStationFocus();
   const all=records.filter(record=>record.parameter===parameter.value);
   share.disabled=!month.value;
   shareStatus.textContent='';
@@ -451,7 +576,7 @@ function initializeQualityMap(map,overview,coverageBounds){
     type:'Feature',geometry:{type:'Point',coordinates:point},
     properties:{
      stationId:record.station_id,
-     icon:qualityStationIcon(map,record.station_id,assessment.color),numeric,relative
+     icon:stationMarkerIcon(map,record.station_id,assessment.color),numeric,relative
     }
    }];
   });
@@ -525,9 +650,16 @@ function initializeQualityMap(map,overview,coverageBounds){
    data:{type:'FeatureCollection',features:Object.entries(historicalStationLocations).map(([stationId,location])=>({
     type:'Feature',
     geometry:{type:'Point',coordinates:location.slice(1)},
-    properties:{stationId}
+    properties:{stationId,icon:exploreStationIcon(map,stationId)}
    }))}
   });
+  map.addLayer({
+   id:'explore-stations',type:'symbol',source:'history-locations',
+   layout:{
+    visibility:'none','icon-image':['get','icon'],'icon-allow-overlap':true,'icon-ignore-placement':true
+   }
+  });
+  updateExploreStations();
   map.addLayer({
    id:'history-stations',type:'circle',source:'history-locations',layout:{visibility:'none'},
    paint:{'circle-radius':8,'circle-stroke-width':2,'circle-stroke-color':'#fff','circle-color':'#0e7490'}
@@ -538,6 +670,7 @@ function initializeQualityMap(map,overview,coverageBounds){
  });
  function showStation(id,center,pinned=true){
   clearTimeout(popupCloseTimer);
+  if(pinned)indicateStationFocus(id);
   if(popup.isOpen()&&popupStation===id){
    popupPinned=pinned;
    return;
@@ -601,6 +734,16 @@ function initializeQualityMap(map,overview,coverageBounds){
   stationSelect.value=feature.properties.stationId;
   showStation(stationSelect.value,feature.geometry.coordinates);
  });
+ map.on('click','explore-stations',event=>{
+  const feature=event.features[0];
+  const id=feature.properties.stationId;
+  indicateStationFocus(id);
+  const content=researchElement('div');
+  content.className='quality-popup-header';
+  content.append(researchElement('h3',historicalStationLocations[id][0]),
+   researchElement('p','Station '+id+' · Historical location'));
+  explorePopup.setLngLat(feature.geometry.coordinates).setDOMContent(content).addTo(map);
+ });
  map.on('click','history-stations',event=>{
   if(!historyOpen||!records)return;
   const id=event.features[0].properties.stationId;
@@ -609,7 +752,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   historyStation.value=id;
   renderHistory();
  });
- for(const layerId of ['quality-stations','history-stations']){
+ for(const layerId of ['explore-stations','quality-stations','history-stations']){
   map.on('mouseenter',layerId,()=>{map.getCanvas().style.cursor='pointer';});
   map.on('mouseleave',layerId,()=>{map.getCanvas().style.cursor='';});
  }

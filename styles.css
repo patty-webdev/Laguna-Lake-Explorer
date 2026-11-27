@@ -37,6 +37,12 @@
 .history-results canvas:not([hidden]){
  display:block;width:100%;height:clamp(158px,29dvh,260px);background:#0b1b29;border-radius:8px
 }
+.history-plot{position:relative}
+.history-point-tooltip{
+ position:absolute;z-index:1;width:max-content;max-width:100%;padding:7px 10px;pointer-events:none;
+ background:#102e3b;border:1px solid #719aa3;border-radius:8px;box-shadow:0 4px 12px #0310188c;
+ color:#effaf8;font-size:.78rem;line-height:1.45;white-space:pre-line;overflow-wrap:anywhere
+}
 .history-results details{margin-top:10px;font-size:.85rem}
 .history-results summary{cursor:pointer;color:#afebd0}
 .history-results details ul{max-height:14rem;overflow:auto;padding-inline-start:20px}
@@ -45,6 +51,21 @@
 .history-results details a{color:#9ce7ca}
 .history-results .history-comparison{border-radius:2px;transform:rotate(45deg)}
 .history-results .history-guideline{width:14px;height:0;border:0;border-top:2px dashed #a6f3c6;border-radius:0}
+.maplibregl-marker.station-focus-ring{
+ width:48px;height:48px;border:2px solid #fff3a3;border-radius:50%;
+ box-shadow:0 0 7px #fff3a3,0 0 16px #ffb82e;pointer-events:none
+}
+.station-focus-ring span{
+ position:absolute;inset:-3px;border:3px solid #ffe46c;border-radius:inherit;
+ box-shadow:0 0 9px #fff3a3,0 0 18px #ffae21;
+ animation:station-focus-pulse 1.05s ease-out 4 both
+}
+@keyframes station-focus-pulse{
+ from{opacity:1;transform:scale(1)}
+ 40%{opacity:.92}
+ to{opacity:0;transform:scale(1.9)}
+}
+@media(prefers-reduced-motion:reduce){.station-focus-ring span{display:none}}
 .quality-guideline-key{display:flex;flex-wrap:wrap;gap:6px 12px;list-style:none;padding:0;margin:8px 0}
 .quality-guideline-key li{display:flex;align-items:center;gap:6px}
 .quality-guideline-key span{width:10px;height:10px;border:1px solid #fff;border-radius:50%;flex:none}

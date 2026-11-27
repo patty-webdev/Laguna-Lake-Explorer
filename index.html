@@ -15,7 +15,7 @@
       href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <link href="./styles.css?v=historical-chart" rel="stylesheet" />
+    <link href="./styles.css?v=history-point-details" rel="stylesheet" />
     <script src="./landing-news.js?v=hide-news-label" defer></script>
   </head>
   <body class="landing-active">
@@ -141,6 +141,7 @@
           </button>
         </div>
         <div class="section-heading">MONITORING STATION DATA</div>
+        <p id="exploreStationCoverage" class="source-note" hidden></p>
         <label class="sr-only" for="stationSelect">Choose station</label
         ><select id="stationSelect"></select
         ><button
@@ -212,9 +213,12 @@
           <h2 id="historyResultsTitle">Historical Trends</h2>
           <ul id="historyChartKey" class="quality-guideline-key" hidden></ul>
           <p id="qualityHistoryStatus" role="status">Loading historical readings…</p>
-          <canvas id="qualityHistoryChart" width="600" height="240" role="img"
-            aria-label="Historical monthly readings for the selected stations and parameter"
-            aria-describedby="qualityHistoryStatus" hidden></canvas>
+          <div class="history-plot">
+            <canvas id="qualityHistoryChart" width="600" height="240" role="img"
+              aria-label="Historical monthly readings for the selected stations and parameter"
+              aria-describedby="qualityHistoryStatus" hidden></canvas>
+            <div id="historyPointTooltip" class="history-point-tooltip" aria-hidden="true" hidden></div>
+          </div>
           <details id="qualityHistoryDetails" hidden>
             <summary>Historical readings and sources</summary>
             <ul id="qualityHistoryList"></ul>
@@ -333,8 +337,8 @@
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
     <script src="./research.js?v=annual-coverage"></script>
-    <script src="./water-quality.js?v=station-hover"></script>
-    <script src="./app.js?v=lazy-buildings"></script>
+    <script src="./water-quality.js?v=history-point-details"></script>
+    <script src="./app.js?v=station-map-coverage"></script>
     <script src="./tutorial.js?v=station-selection"></script>
   </body>
 </html>
