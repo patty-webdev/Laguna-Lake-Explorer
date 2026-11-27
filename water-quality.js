@@ -36,6 +36,31 @@ function numericValue(record){
  return record.numeric_value==null||String(record.numeric_value).trim()===''?NaN:Number(record.numeric_value);
 }
 
+function qualityStationIcon(map,stationId,color){
+ const id=`quality-station-${stationId}-${color.slice(1)}`;
+ if(map.hasImage(id))return id;
+ const size=36,pixelRatio=2;
+ const icon=document.createElement('canvas');
+ icon.width=icon.height=size*pixelRatio;
+ const context=icon.getContext('2d');
+ context.scale(pixelRatio,pixelRatio);
+ const center=size/2;
+ context.beginPath();
+ context.arc(center,center,center-2,0,2*Math.PI);
+ context.fillStyle=color;
+ context.fill();
+ context.strokeStyle='#fff';
+ context.lineWidth=2;
+ context.stroke();
+ context.fillStyle='#fff';
+ context.font='bold 12px system-ui, sans-serif';
+ context.textAlign='center';
+ context.textBaseline='middle';
+ context.fillText(stationId,center,center,size-8);
+ map.addImage(id,context.getImageData(0,0,icon.width,icon.height),{pixelRatio});
+ return id;
+}
+
 function drawQualityHistory(canvas,series,first,last,guideline,reveal){
  const width=canvas.clientWidth,height=canvas.clientHeight;
  if(!width||!height)return;
@@ -241,7 +266,21 @@ function initializeQualityMap(map,overview,coverageBounds){
   if(location)flyToStation(location.slice(1));
  });
  document.addEventListener('landing:enter',()=>showConsoleSection());
- const popup=new maplibregl.Popup({className:'station-map-popup',maxWidth:'min(340px, calc(100vw - 24px))'});
+ const popup=new maplibregl.Popup({
+  className:'station-map-popup',maxWidth:'min(340px, calc(100vw - 24px))',
+  focusAfterOpen:false,offset:18
+ });
+ const canHover=window.matchMedia('(any-hover: hover)');
+ let popupStation='',popupPinned=false,popupCloseTimer;
+ function schedulePopupClose(){
+  clearTimeout(popupCloseTimer);
+  if(!popupPinned)popupCloseTimer=setTimeout(()=>popup.remove(),240);
+ }
+ popup.on('close',()=>{
+  clearTimeout(popupCloseTimer);
+  popupStation='';
+  popupPinned=false;
+ });
  let records,coverageYears=[],loadFailed=false,previousView,previousTerrain,availableParameters=[];
  const empty={type:'FeatureCollection',features:[]};
  const normalize=name=>name.toLowerCase().replaceAll('.','');
@@ -412,7 +451,7 @@ function initializeQualityMap(map,overview,coverageBounds){
     type:'Feature',geometry:{type:'Point',coordinates:point},
     properties:{
      stationId:record.station_id,
-     assessmentColor:assessment.color,numeric,relative
+     icon:qualityStationIcon(map,record.station_id,assessment.color),numeric,relative
     }
    }];
   });
@@ -476,10 +515,9 @@ function initializeQualityMap(map,overview,coverageBounds){
    }
   });
   map.addLayer({
-   id:'quality-stations',type:'circle',source:'quality-readings',layout:{visibility:'none'},
-   paint:{
-    'circle-radius':8,'circle-stroke-width':2,'circle-stroke-color':'#fff',
-    'circle-color':['get','assessmentColor']
+   id:'quality-stations',type:'symbol',source:'quality-readings',
+   layout:{
+    visibility:'none','icon-image':['get','icon'],'icon-allow-overlap':true,'icon-ignore-placement':true
    }
   });
   map.addSource('history-locations',{
@@ -498,7 +536,13 @@ function initializeQualityMap(map,overview,coverageBounds){
   historyButton.disabled=false;
   $('exploreFocusStation').disabled=false;
  });
- function showStation(id,center){
+ function showStation(id,center,pinned=true){
+  clearTimeout(popupCloseTimer);
+  if(popup.isOpen()&&popupStation===id){
+   popupPinned=pinned;
+   return;
+  }
+  popup.remove();
   const content=researchElement('div');
   content.className='quality-popup';
   const readings=records.filter(record=>record.station_id===id&&record.period===month.value);
@@ -540,7 +584,18 @@ function initializeQualityMap(map,overview,coverageBounds){
   content.append(header);
   content.append(list);
   popup.setLngLat(center).setDOMContent(content).addTo(map);
+  popupStation=id;
+  popupPinned=pinned;
+  const element=popup.getElement();
+  element.addEventListener('pointerenter',()=>clearTimeout(popupCloseTimer));
+  element.addEventListener('pointerleave',schedulePopupClose);
  }
+ map.on('mousemove','quality-stations',event=>{
+  if(!canHover.matches||popupPinned||map.isMoving()||event.originalEvent.buttons)return;
+  const feature=event.features[0];
+  showStation(feature.properties.stationId,feature.geometry.coordinates,false);
+ });
+ map.on('mouseleave','quality-stations',schedulePopupClose);
  map.on('click','quality-stations',event=>{
   const feature=event.features[0];
   stationSelect.value=feature.properties.stationId;
