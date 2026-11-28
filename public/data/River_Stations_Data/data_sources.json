@@ -1,0 +1,13 @@
+{
+  "report_2024": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+  "report_2023": "https://www.llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2023/q4_2023.pdf",
+  "coordinate_research": "https://www.researchgate.net/publication/349406848_Spatial_Variability_Model_for_Water_Quality_Assessment_of_the_Physicochemical_Parameters_and_the_Water_Quality_Index_of_Laguna_Lake_and_its_Tributaries",
+  "limitations": [
+    "Coordinates and news carried from prior research; not independently rechecked here.",
+    "Single-pass manual transcription from scanned Q4 2024 report; verify against page 3 before scientific use.",
+    "COD, turbidity and temperature not in the river table; null.",
+    "Class C comparison is a reference, not a determination of designated river class.",
+    "No river line or lake boundary geometry included.",
+    "Q4 2024 table lists 37 IDs, including unsampled Jala-jala."
+  ]
+}

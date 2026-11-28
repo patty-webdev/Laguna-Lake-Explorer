@@ -1,0 +1,530 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.09,
+          14.599
+        ]
+      },
+      "properties": {
+        "station_id": "1",
+        "station_name": "Marikina River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.056,
+          14.467
+        ]
+      },
+      "properties": {
+        "station_id": "2",
+        "station_name": "Bagumbayan River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.051,
+          14.445
+        ]
+      },
+      "properties": {
+        "station_id": "3",
+        "station_name": "Buli Creek",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.05,
+          14.423
+        ]
+      },
+      "properties": {
+        "station_id": "4",
+        "station_name": "Mangangate Downstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.055,
+          14.376
+        ]
+      },
+      "properties": {
+        "station_id": "5",
+        "station_name": "Tunasan Downstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.061,
+          14.369
+        ]
+      },
+      "properties": {
+        "station_id": "6",
+        "station_name": "San Pedro River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.087,
+          14.355
+        ]
+      },
+      "properties": {
+        "station_id": "7",
+        "station_name": "Biñan River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.121,
+          14.316
+        ]
+      },
+      "properties": {
+        "station_id": "8",
+        "station_name": "Santa Rosa Downstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.084,
+          14.285
+        ]
+      },
+      "properties": {
+        "station_id": "8M",
+        "station_name": "Santa Rosa Midstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.056,
+          14.253
+        ]
+      },
+      "properties": {
+        "station_id": "8U",
+        "station_name": "Santa Rosa Upstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.128,
+          14.296
+        ]
+      },
+      "properties": {
+        "station_id": "9",
+        "station_name": "Cabuyao River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.139,
+          14.22
+        ]
+      },
+      "properties": {
+        "station_id": "10",
+        "station_name": "San Cristobal River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.176,
+          14.218
+        ]
+      },
+      "properties": {
+        "station_id": "11",
+        "station_name": "San Juan River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.26,
+          14.189
+        ]
+      },
+      "properties": {
+        "station_id": "12",
+        "station_name": "Molawin Creek",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.285,
+          14.181
+        ]
+      },
+      "properties": {
+        "station_id": "13",
+        "station_name": "Bay River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.353,
+          14.211
+        ]
+      },
+      "properties": {
+        "station_id": "14",
+        "station_name": "Pila River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.414,
+          14.28
+        ]
+      },
+      "properties": {
+        "station_id": "15",
+        "station_name": "Santa Cruz River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.46,
+          14.292
+        ]
+      },
+      "properties": {
+        "station_id": "16",
+        "station_name": "Pagsanjan River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.467,
+          14.389
+        ]
+      },
+      "properties": {
+        "station_id": "17",
+        "station_name": "Pangil Downstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.499,
+          14.397
+        ]
+      },
+      "properties": {
+        "station_id": "17U",
+        "station_name": "Pangil Upstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.439,
+          14.406
+        ]
+      },
+      "properties": {
+        "station_id": "18",
+        "station_name": "Siniloan River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.425,
+          14.403
+        ]
+      },
+      "properties": {
+        "station_id": "19",
+        "station_name": "Santa Maria Downstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.423,
+          14.464
+        ]
+      },
+      "properties": {
+        "station_id": "19U",
+        "station_name": "Santa Maria Upstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.323,
+          14.3
+        ]
+      },
+      "properties": {
+        "station_id": "20",
+        "station_name": "Jala-jala River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.315,
+          14.475
+        ]
+      },
+      "properties": {
+        "station_id": "21",
+        "station_name": "Pililla River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.285,
+          14.489
+        ]
+      },
+      "properties": {
+        "station_id": "22A",
+        "station_name": "Tanay Downstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.306,
+          14.56
+        ]
+      },
+      "properties": {
+        "station_id": "22B",
+        "station_name": "Tanay Midstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.302,
+          14.527
+        ]
+      },
+      "properties": {
+        "station_id": "22C",
+        "station_name": "Tanay Daranak Falls",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.266,
+          14.514
+        ]
+      },
+      "properties": {
+        "station_id": "23",
+        "station_name": "Baras River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.239,
+          14.514
+        ]
+      },
+      "properties": {
+        "station_id": "24",
+        "station_name": "Morong Downstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.221,
+          14.544
+        ]
+      },
+      "properties": {
+        "station_id": "24U",
+        "station_name": "Morong Upstream",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.12,
+          14.549
+        ]
+      },
+      "properties": {
+        "station_id": "25",
+        "station_name": "Manggahan Floodway",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.11,
+          14.564
+        ]
+      },
+      "properties": {
+        "station_id": "26",
+        "station_name": "Sapang Baho River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.156,
+          14.539
+        ]
+      },
+      "properties": {
+        "station_id": "27",
+        "station_name": "Angono River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.213,
+          14.552
+        ]
+      },
+      "properties": {
+        "station_id": "28",
+        "station_name": "Teresa River",
+        "coordinate_status": "prior_research_transcription_unverified"
+      }
+    }
+  ]
+}

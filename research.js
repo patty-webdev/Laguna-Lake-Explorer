@@ -1,7 +1,13 @@
 const researchDirectory='./public/data/Laguna_Lake_Consolidated_Research_2026/';
+const riverDirectory='./public/data/River_Stations_Data/';
+const riverParameters={
+ BOD_mg_L:'BOD',DO_mg_L:'DO',pH:'pH',nitrate_mg_L:'nitrate',
+ inorganic_phosphate_mg_L:'phosphate',ammonia_mg_L:'ammonia',fecal_coliform_MPN_100mL:'fecalColiform'
+};
 const researchLabels={
  DO:'Dissolved oxygen',BOD:'Biochemical oxygen demand',pH:'pH',nitrate:'Nitrate',
- phosphate:'Inorganic phosphate',COD:'Chemical oxygen demand',turbidity:'Turbidity',temperature:'Water temperature'
+ phosphate:'Inorganic phosphate',COD:'Chemical oxygen demand',turbidity:'Turbidity',temperature:'Water temperature',
+ ammonia:'Ammonia',fecalColiform:'Fecal coliform'
 };
 const validationLabels={
  prior_audit_review_needed:'Prior audit pending recheck',
@@ -30,21 +36,91 @@ async function researchCsv(name){
 }
 
 let researchRequest;
+const stationNetwork=id=>id.startsWith('river-')?'river':'lake';
+const stationLabel=id=>stationNetwork(id)==='river'?'River '+id.slice(6):id;
+
+function stationOptionLabel(id,name){
+ return (stationNetwork(id)==='river'?id.slice(6):'Stn. '+id)+' · '+name;
+}
+
+function stationGroups(options){
+ return [['lake','Lake stations'],['river','River stations']].flatMap(([network,label])=>{
+  const entries=options.filter(option=>stationNetwork(option.value)===network);
+  if(!entries.length)return [];
+  if(network==='river')entries.sort((a,b)=>a.value.localeCompare(b.value,'en',{numeric:true}));
+  const group=researchElement('optgroup');
+  group.label=label;
+  group.append(...entries);
+  return [group];
+ });
+}
+
+async function loadRiverResearch(){
+ const [registry,samples,parameters,historical,news,sources]=await Promise.all([
+  'river_stations.json','river_water_quality_2024_Q4.json','water_quality_parameters.json',
+  'historical_river_stations.json','river_news.json','data_sources.json'
+ ].map(async file=>{
+  const response=await fetch(riverDirectory+file);
+  if(!response.ok)throw new Error(`${file} returned HTTP ${response.status}`);
+  return response.json();
+ }));
+ const stations=new Map(registry.map(station=>{
+  const id='river-'+station.station_id;
+  return [id,{...station,station_id:id}];
+ }));
+ const units=new Map(parameters.map(parameter=>[parameter.key,parameter.unit]));
+ const monthly=samples.flatMap(sample=>Object.entries(sample.measurements).flatMap(([key,value])=>{
+  const parameter=riverParameters[key];
+  if(!parameter||value.reported==null)return [];
+  const station_id='river-'+sample.station_id;
+  return [{
+   station_id,station_name:stations.get(station_id).station_name,period:sample.month,
+   temporal_resolution:'monthly',record_type:'station_measurement',parameter,unit:units.get(key),
+   reported_value:value.reported,numeric_value:value.numeric_value,reporting_limit:value.limit??null,
+   qualifier:value.qualifier??'exact_as_printed',validation_status:'manual_first_pass_needs_second_review',
+   source_url:sample.source_url,source_pdf_page:sample.source_page
+  }];
+ }));
+ const locations=Object.fromEntries([...stations].flatMap(([id,station])=>
+  Number.isFinite(station.longitude)&&Number.isFinite(station.latitude)&&station.station_id!=='river-22B'
+   ?[[id,[station.station_name,station.longitude,station.latitude]]]:[]));
+ const historicalLocations={};
+ for(const station of historical){
+  const id='river-'+station.station_id;
+  if(stations.has(id))continue;
+  stations.set(id,{...station,station_id:id,coordinate_source:station.source_url});
+  if(Number.isFinite(station.longitude)&&Number.isFinite(station.latitude)){
+   historicalLocations[id]=[station.station_name,station.longitude,station.latitude];
+  }
+ }
+ return {registry,stations,monthly,locations,historicalLocations,parameters,historical,news,sources};
+}
+
 function loadResearch(){
  researchRequest??=Promise.all([
   readResearchFile('measurements_all.json').then(response=>response.json()),
   researchCsv('parameters.csv'),researchCsv('stations_2024.csv'),
-  researchCsv('source_inventory.csv'),researchCsv('coverage_summary.csv'),researchCsv('station_counts_by_year.csv')
- ]).then(([measurements,parameters,registry,sources,coverage,stationCounts])=>{
-  const monthly=measurements.filter(record=>record.record_type==='station_measurement'&&record.temporal_resolution==='monthly');
+  researchCsv('source_inventory.csv'),researchCsv('coverage_summary.csv'),researchCsv('station_counts_by_year.csv'),
+  loadRiverResearch().catch(error=>{console.warn('River research could not load',error);return null;})
+ ]).then(([measurements,lakeParameters,registry,sources,coverage,stationCounts,river])=>{
+  const lakeMonthly=measurements.filter(record=>record.record_type==='station_measurement'&&record.temporal_resolution==='monthly');
+  const monthly=[...lakeMonthly,...(river?.monthly??[])];
   const annual=measurements.filter(record=>record.record_type==='lake_annual_average');
   const months=[...new Set(monthly.map(record=>record.period))].sort().reverse();
   const stations=new Map(registry.map(station=>[station.station_id,station]));
-  for(const record of monthly){
+  for(const record of lakeMonthly){
    const previous=stations.get(record.station_id);
    if(!previous?.period||record.period>=previous.period)stations.set(record.station_id,record);
   }
-  return {measurements,monthly,annual,months,parameters,stations,registry,sources,coverage,stationCounts};
+  const parameters=[...lakeParameters];
+  if(river){
+   for(const [id,station] of river.stations)stations.set(id,station);
+   for(const {key,unit} of river.parameters){
+    const parameter=riverParameters[key];
+    if(parameter&&!parameters.some(item=>item.parameter===parameter))parameters.push({parameter,unit});
+   }
+  }
+  return {measurements,monthly,lakeMonthly,annual,months,parameters,lakeParameters,stations,registry,sources,coverage,stationCounts,river};
  }).catch(error=>{
   researchRequest=undefined;
   throw error;
@@ -141,15 +217,25 @@ document.getElementById('qualityFactorsLink').addEventListener('click',()=>{
 });
 document.getElementById('researchDialog').addEventListener('close',()=>renderWaterQualityFactors());
 
-function researchDataBrowser({measurements,parameters,registry,sources,coverage,stationCounts}){
+function researchDataBrowser({measurements,lakeParameters,registry,sources,coverage,stationCounts,river}){
  const datasets=[
   ['Measurements','measurements_all.csv',measurements],
-  ['Parameters','parameters.csv',parameters],
+  ['Lake parameters','parameters.csv',lakeParameters],
   ['2024 station register','stations_2024.csv',registry],
   ['Source inventory','source_inventory.csv',sources],
   ['Extraction coverage','coverage_summary.csv',coverage],
   ['Reported station counts','station_counts_by_year.csv',stationCounts]
  ];
+ if(river)datasets.push(
+  ['River measurements',riverDirectory+'river_water_quality_2024_Q4.json',river.monthly.map(record=>({
+   ...record,station_id:record.station_id.slice(6)
+  }))],
+  ['River station register',riverDirectory+'river_stations.json',river.registry],
+  ['Historical river locations',riverDirectory+'historical_river_stations.json',river.historical],
+  ['River news references',riverDirectory+'river_news.json',river.news.map(record=>({
+   ...record,station_ids:record.station_ids.join(', ')
+  }))]
+ );
  const browser=researchElement('details');
  const selection=researchElement('select');
  selection.id='researchDataset';
@@ -213,10 +299,14 @@ function researchDataBrowser({measurements,parameters,registry,sources,coverage,
  const downloads=researchElement('details');
  downloads.append(researchElement('summary','Download package files'));
  const files=researchElement('ul');
- for(const file of [...datasets.map(([,file])=>file),'measurements_all.json','README.md']){
+ const riverFiles=river?['river_stations.geojson','water_quality_parameters.json','data_sources.json','README.md']
+  .map(file=>riverDirectory+file):[];
+ for(const file of [...datasets.map(([,file])=>file),'measurements_all.json','README.md',...riverFiles]){
   const row=researchElement('li');
-  const link=researchLink(researchDirectory+file,file);
-  link.download=file;
+  const name=file.split('/').at(-1);
+  const link=researchLink(file.startsWith('./')?file:researchDirectory+file,
+   file.startsWith(riverDirectory)?'River / '+name:name);
+  link.download=name;
   row.append(link);
   files.append(row);
  }
@@ -224,11 +314,55 @@ function researchDataBrowser({measurements,parameters,registry,sources,coverage,
  return [browser,downloads];
 }
 
+function renderRiverAnalysis(river){
+ const section=researchElement('section');
+ section.append(researchElement('h3','River water quality · October–December 2024'));
+ if(!river){
+  section.append(researchElement('p','The river station package could not load.'));
+  return section;
+ }
+ const {monthly,registry,locations,sources}=river;
+ const sampled=new Set(monthly.map(record=>record.station_id)).size;
+ section.append(
+  researchElement('p',`${monthly.length} reported results across ${sampled} of ${registry.length} listed stations. ${Object.keys(locations).length} station locations can be displayed using unverified historical coordinates.`),
+  researchElement('p','Saran and Binangonan lack coordinates. Tanay 22B has a conflicting location label. Their readings are available in the river measurements table. Jala-jala had no Q4 samples.'),
+  researchElement('p','The Q4 data is a single-pass transcription. Results below a reporting limit are counted separately from exact numbers. The historical upstream locations 4U and 5U appear on the map and have no Q4 measurements. Historical location records and news references are available in the data browser.')
+ );
+ const table=researchElement('table');
+ table.append(researchElement('caption','River results by parameter'));
+ const headings=table.createTHead().insertRow();
+ for(const label of ['Parameter','Exact','Below limit','Missing station-months','Outside Class C reference']){
+  const cell=researchElement('th',label);
+  cell.scope='col';
+  headings.append(cell);
+ }
+ const periods=new Set(monthly.map(record=>record.period));
+ const body=table.createTBody();
+ for(const key of Object.values(riverParameters)){
+  const readings=monthly.filter(record=>record.parameter===key);
+  const exact=readings.filter(record=>Number.isFinite(numericValue(record)));
+  const assessed=exact.map(guidelineStatus).filter(status=>status!=='unknown');
+  const outside=assessed.filter(status=>status==='outside').length;
+  const row=body.insertRow();
+  for(const value of [researchLabels[key],exact.length,readings.length-exact.length,
+   registry.length*periods.size-readings.length,assessed.length?`${outside} of ${assessed.length}`:'—']){
+   row.insertCell().textContent=value;
+  }
+ }
+ const scroll=researchElement('div');
+ scroll.className='research-data-scroll';
+ scroll.tabIndex=0;
+ scroll.append(table);
+ section.append(scroll,researchElement('p','Class C thresholds are shown as reference benchmarks. COD, turbidity, temperature, TSS, chloride, and oil and grease have no reported values in this extract.'),
+  researchLink(sources.report_2024+'#page=3','LLDA Q4 2024 river table, p. 3'));
+ return section;
+}
+
 function renderResearchArchive(dataset){
- const {monthly,annual,registry,sources,coverage,stationCounts}=dataset;
+ const {lakeMonthly,annual,registry,sources,coverage,stationCounts,river}=dataset;
  const root=$('researchContents');
- root.replaceChildren(researchElement('p',`${monthly.length} monthly station readings and ${annual.length} lake-wide annual averages. The archive inventory includes reports with no extracted readings.`));
- root.append(...researchDataBrowser(dataset),researchElement('h3','Lake-wide annual averages'));
+ root.replaceChildren(researchElement('p',`${lakeMonthly.length} monthly lake station readings and ${annual.length} lake-wide annual averages. The archive inventory includes reports with no extracted readings.`));
+ root.append(renderRiverAnalysis(river),...researchDataBrowser(dataset),researchElement('h3','Lake-wide annual averages'));
  for(const record of [...annual].sort((a,b)=>a.period.localeCompare(b.period))){
   const row=researchElement('p',`${record.period} · ${record.parameter} · ${record.reported_value} ${record.unit} · ${validationLabels[record.validation_status]} `);
   row.append(readingSource(record));

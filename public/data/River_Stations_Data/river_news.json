@@ -1,0 +1,77 @@
+[
+  {
+    "id": "news-1",
+    "year": 2025,
+    "date": "2025-03-14",
+    "title": "SMC removes 88,000 tons of waste from Biñan River",
+    "publisher": "BusinessMirror",
+    "station_ids": [
+      "7"
+    ],
+    "url": "https://businessmirror.com.ph/2025/03/14/smc-removes-88000-tons-of-waste-from-binan-river/",
+    "data_type": "historical_news",
+    "verification_status": "prior_conversation_reference_not_rechecked",
+    "station_link_type": "river_topic_not_exact_sampling_site"
+  },
+  {
+    "id": "news-2",
+    "year": 2024,
+    "date": null,
+    "title": "Water quality of Laguna Lake tributaries continues to deteriorate",
+    "publisher": "Los Baños Times",
+    "station_ids": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "26"
+    ],
+    "url": "https://lbtimes.ph/whole-of-community-approach-stricter-policy-implementation-sought-water-quality-of-laguna-lakes-tributaries-continue-to-deteriorate-%E2%88%92-llda-data/",
+    "data_type": "historical_news",
+    "verification_status": "prior_conversation_reference_not_rechecked",
+    "station_link_type": "river_topic_not_exact_sampling_site"
+  },
+  {
+    "id": "news-3",
+    "year": 2024,
+    "date": null,
+    "title": "Accountability adrift: Laguna Lake water pollution investigation",
+    "publisher": "Philippine Daily Inquirer",
+    "station_ids": [
+      "4",
+      "10"
+    ],
+    "url": "https://newsinfo.inquirer.net/1943889/accountability-adrift-murky-govt-data-draw-dreary-picture-of-laguna-lake",
+    "data_type": "historical_news",
+    "verification_status": "prior_conversation_reference_not_rechecked",
+    "station_link_type": "river_topic_not_exact_sampling_site"
+  },
+  {
+    "id": "news-4",
+    "year": 2011,
+    "date": null,
+    "title": "Why Laguna Lake water isn't safe for people or fish",
+    "publisher": "GMA News",
+    "station_ids": [],
+    "url": "https://www.gmanetwork.com/news/scitech/content/233349/why-laguna-lake-water-isn-t-safe-for-people-or-fish/story/",
+    "data_type": "historical_news",
+    "verification_status": "prior_conversation_reference_not_rechecked",
+    "station_link_type": "river_topic_not_exact_sampling_site"
+  },
+  {
+    "id": "news-5",
+    "year": 2026,
+    "date": null,
+    "title": "LLDA calls for multi-sectoral cooperation to trace water pollution sources",
+    "publisher": "PIA",
+    "station_ids": [],
+    "url": "https://pia.gov.ph/news/luzon/calabarzon/llda-calls-for-multi-sectoral-cooperation-to-trace-water-pollution-sources/",
+    "data_type": "historical_news",
+    "verification_status": "prior_conversation_reference_not_rechecked",
+    "station_link_type": "river_topic_not_exact_sampling_site"
+  }
+]

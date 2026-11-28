@@ -56,12 +56,13 @@ function stationMarkerIcon(map,stationId,color){
  context.font='bold 12px system-ui, sans-serif';
  context.textAlign='center';
  context.textBaseline='middle';
- context.fillText(stationId,center,center,size-8);
+ context.fillText(stationLabel(stationId).replace('River ','R'),center,center,size-8);
  map.addImage(id,context.getImageData(0,0,icon.width,icon.height),{pixelRatio});
  return id;
 }
 
 function exploreStationIcon(map,stationId){
+ if(stationNetwork(stationId)==='river')return stationMarkerIcon(map,stationId,'#7c3aed');
  const id=`explore-cell-tower-${stationId}`;
  if(map.hasImage(id))return id;
  const width=44,height=46,pixelRatio=2;
@@ -212,6 +213,8 @@ function drawQualityHistory(canvas,series,first,last,guideline,reveal){
 
 function initializeQualityMap(map,overview,coverageBounds){
  const panel=$('qualityPanel');
+ const locations={...historicalStationLocations};
+ let riverStations=new Map(),activeNetwork='lake';
  const parameter=$('qualityParameter'),month=$('qualityMonth'),layer=$('qualityLayer');
  const stationSelect=$('qualityStation');
  const status=$('qualityStatus'),legend=$('qualityLegend');
@@ -294,7 +297,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   focusedStation='';
  }
  function indicateStationFocus(id){
-  const location=historicalStationLocations[id];
+  const location=locations[id];
   if(!location){
    clearStationFocus();
    return;
@@ -363,6 +366,7 @@ function initializeQualityMap(map,overview,coverageBounds){
  share.addEventListener('click',async()=>{
   const url=new URL(location.pathname,location.href);
   url.searchParams.set('view','water-quality');
+  url.searchParams.set('network',activeNetwork);
   url.searchParams.set('parameter',parameter.value);
   url.searchParams.set('month',month.value);
   url.searchParams.set('layer',layer.value);
@@ -381,7 +385,7 @@ function initializeQualityMap(map,overview,coverageBounds){
  });
  historyStation.addEventListener('change',()=>{
   renderHistory();
-  const location=historicalStationLocations[historyStation.value];
+  const location=locations[historyStation.value];
   if(location)flyToStation(location.slice(1));
  });
  document.addEventListener('landing:enter',()=>showConsoleSection());
@@ -402,12 +406,12 @@ function initializeQualityMap(map,overview,coverageBounds){
   popupStation='';
   popupPinned=false;
  });
- let records,coverageYears=[],loadFailed=false,previousView,previousTerrain,availableParameters=[];
+ let records,loadFailed=false,previousView,previousTerrain,availableParameters=[],lakeParameters=[];
  const empty={type:'FeatureCollection',features:[]};
  const normalize=name=>name.toLowerCase().replaceAll('.','');
 
  function coordinates(record){
-  const location=historicalStationLocations[record.station_id];
+  const location=locations[record.station_id];
   return location&&normalize(location[0])===normalize(record.station_name)?location.slice(1):null;
  }
  function updateStationAvailability(select,available){
@@ -417,9 +421,9 @@ function initializeQualityMap(map,overview,coverageBounds){
   if(select.selectedOptions[0]?.disabled)select.value='';
  }
  function renderHistory(){
-  if(!historyOpen||!records)return;
+  if(!historyOpen||!records||!map.getLayer('history-stations'))return;
   const parameterRecords=records.filter(record=>record.parameter===historyParameter.value);
-  const available=new Set(parameterRecords.filter(record=>coordinates(record)).map(record=>record.station_id));
+  const available=new Set(parameterRecords.filter(record=>coordinates(record)||stationNetwork(record.station_id)==='river').map(record=>record.station_id));
   updateStationAvailability(historyStation,available);
   indicateStationFocus(historyStation.value);
   available.delete(historyStation.value);
@@ -427,7 +431,8 @@ function initializeQualityMap(map,overview,coverageBounds){
   if(historyCompare.disabled)historyCompare.value='';
   updateStationAvailability(historyCompare,available);
   map.setPaintProperty('history-stations','circle-color',[
-   'match',['get','stationId'],historyStation.value||'-','#67e8f9',historyCompare.value||'--','#fbbf24','#0e7490'
+   'match',['get','stationId'],historyStation.value||'-','#67e8f9',historyCompare.value||'--','#fbbf24',
+   ['case',['==',['get','network'],'river'],'#7c3aed','#0e7490']
   ]);
   const canvas=historyCanvas,message=$('qualityHistoryStatus'),key=$('historyChartKey');
   const details=$('qualityHistoryDetails'),list=$('qualityHistoryList');
@@ -496,7 +501,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   message.textContent=total+' of '+readings.length+' reported readings plotted. Lines connect consecutive months with exact readings.';
  }
 
- function renderCoverage(entries){
+ function renderCoverage(entries,periods){
   const root=$('qualityCoverage');
   const byMonth=new Map();
   for(const record of entries){
@@ -506,7 +511,8 @@ function initializeQualityMap(map,overview,coverageBounds){
   }
   const label=new Intl.DateTimeFormat('en',{month:'short',timeZone:'UTC'});
   root.replaceChildren();
-  for(const year of coverageYears){
+  const newest=Number(periods[0]?.slice(0,4)),oldest=Number(periods.at(-1)?.slice(0,4));
+  for(let year=newest;year>=oldest;year--){
    const group=researchElement('fieldset');
    group.className='coverage-year';
    group.append(researchElement('legend',year));
@@ -539,23 +545,34 @@ function initializeQualityMap(map,overview,coverageBounds){
   }
  }
 
+ function updateNetworkOptions(){
+  const previousParameter=parameter.value,previousMonth=month.value;
+  const river=activeNetwork==='river';
+  const options=river?availableParameters.filter(item=>Object.values(riverParameters).includes(item.parameter)):lakeParameters;
+  parameter.replaceChildren(...options.map(({parameter:key,unit})=>new Option(`${researchLabels[key]} (${unit})`,key)));
+  if(options.some(item=>item.parameter===previousParameter))parameter.value=previousParameter;
+  const periods=[...new Set(records.filter(record=>stationNetwork(record.station_id)===activeNetwork)
+   .map(record=>record.period))].sort().reverse();
+  month.replaceChildren(...periods.map(period=>new Option(researchMonth(period),period)));
+  if(periods.includes(previousMonth))month.value=previousMonth;
+ }
+
  function render(){
-  if(!state.active||!records)return;
+  if(!state.active||!records||!map.getSource('quality-readings'))return;
   popup.remove();
   clearStationFocus();
-  const all=records.filter(record=>record.parameter===parameter.value);
+  const networkRecords=records.filter(record=>stationNetwork(record.station_id)===activeNetwork);
+  const all=networkRecords.filter(record=>record.parameter===parameter.value);
   share.disabled=!month.value;
   shareStatus.textContent='';
   shareUrl.hidden=true;
   shareUrl.labels[0].hidden=true;
-  renderCoverage(all);
+  renderCoverage(all,Array.from(month.options,option=>option.value));
   const selected=all.filter(record=>record.period===month.value);
-  const availableStations=records.filter(record=>record.period===month.value&&coordinates(record));
-  updateStationAvailability(stationSelect,new Set(availableStations.map(record=>record.station_id)));
   const list=$('qualityReadingList');
   list.replaceChildren();
   for(const record of selected){
-   const row=researchElement('li',`${record.station_id} · ${record.station_name} · ${record.reported_value} ${record.unit}`);
+   const row=researchElement('li',`${stationLabel(record.station_id)} · ${record.station_name} · ${record.reported_value} ${record.unit}`);
    const assessment=guidelineStatuses[guidelineStatus(record)];
    row.append(researchElement('small',assessment.label));
    row.append(researchElement('small',`${validationLabels[record.validation_status]} · ${coordinates(record)?'Mapped':'Location unavailable'}`),readingSource(record));
@@ -588,6 +605,7 @@ function initializeQualityMap(map,overview,coverageBounds){
   status.textContent=selected.length
    ?`${features.length} of ${selected.length} readings mapped with historical station coordinates.`
    :'No station readings for this parameter and month.';
+  if(activeNetwork==='river')status.textContent+=' River coordinates are unverified.';
   if(heat&&selected.length&&!showHeat)status.textContent+=' At least three mapped numeric readings are needed for the heatmap.';
   legend.replaceChildren();
   const guideline=classCGuidelines[parameter.value];
@@ -621,6 +639,14 @@ function initializeQualityMap(map,overview,coverageBounds){
   }
  }
 
+ function stationFeatures(){
+  return {type:'FeatureCollection',features:Object.entries(locations).map(([stationId,location])=>({
+   type:'Feature',
+   geometry:{type:'Point',coordinates:location.slice(1)},
+   properties:{stationId,network:stationNetwork(stationId),icon:exploreStationIcon(map,stationId)}
+  }))};
+ }
+
  map.on('style.load',()=>{
   map.addSource('quality-basemap',{
    type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:19,bounds:coverageBounds,
@@ -646,12 +672,7 @@ function initializeQualityMap(map,overview,coverageBounds){
    }
   });
   map.addSource('history-locations',{
-   type:'geojson',
-   data:{type:'FeatureCollection',features:Object.entries(historicalStationLocations).map(([stationId,location])=>({
-    type:'Feature',
-    geometry:{type:'Point',coordinates:location.slice(1)},
-    properties:{stationId,icon:exploreStationIcon(map,stationId)}
-   }))}
+   type:'geojson',data:stationFeatures()
   });
   map.addLayer({
    id:'explore-stations',type:'symbol',source:'history-locations',
@@ -679,17 +700,21 @@ function initializeQualityMap(map,overview,coverageBounds){
   const content=researchElement('div');
   content.className='quality-popup';
   const readings=records.filter(record=>record.station_id===id&&record.period===month.value);
-  const name=readings[0]?.station_name??historicalStationLocations[id][0];
+  const name=readings[0]?.station_name??locations[id][0];
   const header=researchElement('header');
   header.className='quality-popup-header';
   header.append(researchElement('h3',name),
-   researchElement('p','Station '+id+' / '+researchMonth(month.value)));
+   researchElement('p',stationLabel(id)+' / '+researchMonth(month.value)));
+  if(stationNetwork(id)==='river'){
+   header.append(researchElement('p','Unverified historical location'),
+    researchLink(riverStations.get(id).coordinate_source,'Coordinate source'));
+  }
   const list=researchElement('ul');
   list.className='quality-popup-readings';
   list.tabIndex=0;
   list.setAttribute('aria-label','Monthly parameter readings');
 
-  for(const {parameter:key} of availableParameters){
+  for(const {value:key} of parameter.options){
    const matching=readings.filter(record=>record.parameter===key);
    const item=researchElement('li');
    item.className='quality-popup-reading';
@@ -740,8 +765,18 @@ function initializeQualityMap(map,overview,coverageBounds){
   indicateStationFocus(id);
   const content=researchElement('div');
   content.className='quality-popup-header';
-  content.append(researchElement('h3',historicalStationLocations[id][0]),
-   researchElement('p','Station '+id+' · Historical location'));
+  const river=riverStations.get(id);
+  content.append(researchElement('h3',locations[id][0]),
+   researchElement('p',stationLabel(id)+(river?' · Unverified historical location':' · Historical location')));
+  if(river){
+   const period=records?.filter(record=>record.station_id===id).map(record=>record.period).sort().at(-1);
+   content.append(researchLink(river.coordinate_source,'Coordinate source'));
+   const button=researchElement('button','Open water quality');
+   button.type='button';
+   button.addEventListener('click',()=>openStation(id,period));
+   if(!period)content.append(researchElement('p','No readings in the Q4 2024 extract.'));
+   content.append(button);
+  }
   explorePopup.setLngLat(feature.geometry.coordinates).setDOMContent(content).addTo(map);
  });
  map.on('click','history-stations',event=>{
@@ -759,33 +794,32 @@ function initializeQualityMap(map,overview,coverageBounds){
 
  for(const input of [parameter,month,layer])input.addEventListener('change',render);
  stationSelect.addEventListener('change',()=>{
+  setStationNetwork(stationSelect.value);
   render();
   focusStation();
  });
+
+ function setStationNetwork(id){
+  const nextNetwork=stationNetwork(id);
+  if(nextNetwork===activeNetwork)return;
+  activeNetwork=nextNetwork;
+  updateNetworkOptions();
+ }
 
  async function openStation(id,period){
   setActive(true);
   await dataReady;
   if(!state.active||!records)return;
-  if(period&&month.value!==period){
-   month.value=period;
-   render();
-  }
+  if(!Object.hasOwn(locations,id))return;
+  setStationNetwork(id);
+  if(period&&Array.from(month.options).some(option=>option.value===period))month.value=period;
   stationSelect.value=id;
-  if(!Object.hasOwn(historicalStationLocations,id)){
-   status.textContent='The selected station has no published coordinates in this map.';
-   return;
-  }
-  if(stationSelect.selectedOptions[0]?.disabled){
-   stationSelect.value='';
-   status.textContent='The selected station has no mapped readings for this month.';
-   return;
-  }
+  render();
   focusStation();
  }
 
  function focusStation(){
-  const location=historicalStationLocations[stationSelect.value];
+  const location=locations[stationSelect.value];
   if(!location)return;
   const center=location.slice(1);
   flyToStation(center);
@@ -829,24 +863,25 @@ function initializeQualityMap(map,overview,coverageBounds){
   }
  }
 
- const dataReady=loadResearch().then(({monthly,months,stations,parameters})=>{
+ const dataReady=loadResearch().then(({monthly,stations,parameters,lakeParameters:lakeOptions,river})=>{
   records=monthly;
   availableParameters=parameters;
-  const newest=Number(months[0]?.slice(0,4));
-  const oldest=Number(months.at(-1)?.slice(0,4));
-  if(Number.isFinite(oldest))coverageYears=Array.from({length:newest-oldest+1},(_,index)=>newest-index);
+  lakeParameters=lakeOptions;
+  if(river){
+   riverStations=river.stations;
+   Object.assign(locations,river.locations,river.historicalLocations);
+   map.getSource('history-locations')?.setData(stationFeatures());
+  }
   for(const {parameter:key,unit} of parameters){
-   parameter.add(new Option(`${researchLabels[key]} (${unit})`,key));
    historyParameter.add(new Option(`${researchLabels[key]} (${unit})`,key));
   }
-  for(const period of months)month.add(new Option(researchMonth(period),period));
-  for(const [id,record] of stations){
-   const hasLocation=Boolean(coordinates(record));
-   const option=new Option(`${id} · ${record.station_name}${hasLocation?'':' (location unavailable)'}`,id);
-   stationSelect.add(option);
-   historyStation.add(option.cloneNode(true));
-   historyCompare.add(option.cloneNode(true));
+  const options=Array.from(stations,([id,record])=>new Option(
+   stationOptionLabel(id,record.station_name)+(coordinates(record)?'':' (location unavailable)'),id));
+  stationSelect.append(...stationGroups(options.filter(option=>Object.hasOwn(locations,option.value))));
+  for(const select of [historyStation,historyCompare]){
+   select.append(...stationGroups(options.map(option=>option.cloneNode(true))));
   }
+  updateNetworkOptions();
   render();
   renderHistory();
  }).catch(error=>{
@@ -862,13 +897,15 @@ function initializeQualityMap(map,overview,coverageBounds){
    await Promise.all([dataReady,styleReady]);
    const choose=(field,key)=>{
     const value=shared.get(key);
-    if(Array.from(field.options).some(option=>option.value===value))field.value=value;
+    if(Array.from(field.options).some(option=>option.value===value&&!option.disabled))field.value=value;
    };
+   const id=shared.get('station');
+   if(riverStations.has(id)||(!id&&shared.get('network')==='river'&&riverStations.size))activeNetwork='river';
+   if(records)updateNetworkOptions();
    choose(parameter,'parameter');
    choose(month,'month');
    choose(layer,'layer');
    qualityButton.click();
-   const id=shared.get('station');
    if(id)openStation(id,month.value);
   },{once:true});
   $('enterExplorer').click();

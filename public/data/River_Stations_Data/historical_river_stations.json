@@ -1,0 +1,18 @@
+[
+  {
+    "station_id": "4U",
+    "station_name": "Mangangate Upstream",
+    "latitude": 14.405,
+    "longitude": 121.033,
+    "coordinate_status": "prior_research_transcription_unverified",
+    "source_url": "https://www.researchgate.net/publication/349406848_Spatial_Variability_Model_for_Water_Quality_Assessment_of_the_Physicochemical_Parameters_and_the_Water_Quality_Index_of_Laguna_Lake_and_its_Tributaries"
+  },
+  {
+    "station_id": "5U",
+    "station_name": "Tunasan Upstream",
+    "latitude": 14.365,
+    "longitude": 121.031,
+    "coordinate_status": "prior_research_transcription_unverified",
+    "source_url": "https://www.researchgate.net/publication/349406848_Spatial_Variability_Model_for_Water_Quality_Assessment_of_the_Physicochemical_Parameters_and_the_Water_Quality_Index_of_Laguna_Lake_and_its_Tributaries"
+  }
+]

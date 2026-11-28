@@ -157,6 +157,10 @@
         </section>
         <section id="qualityPanel" class="quality-panel" hidden>
           <h2>Water quality</h2>
+          <label for="qualityStation">Monitoring station</label>
+          <select id="qualityStation">
+            <option value="">Choose a station...</option>
+          </select>
           <label for="qualityParameter">Parameter</label
           ><select id="qualityParameter"></select>
           <label for="qualityMonth">Sampling month</label
@@ -170,10 +174,6 @@
           ><select id="qualityLayer">
             <option value="stations">Station readings</option>
             <option value="heat">Relative heatmap</option>
-          </select>
-          <label for="qualityStation">Monitoring station</label
-          ><select id="qualityStation">
-            <option value="">Choose a station</option>
           </select>
           <p id="qualityStatus" role="status">Loading historical readings…</p>
           <div id="qualityLegend"></div>
@@ -336,9 +336,9 @@
       </div>
     </dialog>
     <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
-    <script src="./research.js?v=annual-coverage"></script>
-    <script src="./water-quality.js?v=history-point-details"></script>
-    <script src="./app.js?v=station-map-coverage"></script>
+    <script src="./research.js?v=grouped-stations"></script>
+    <script src="./water-quality.js?v=grouped-stations"></script>
+    <script src="./app.js?v=grouped-stations"></script>
     <script src="./tutorial.js?v=station-selection"></script>
   </body>
 </html>

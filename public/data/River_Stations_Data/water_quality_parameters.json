@@ -1,0 +1,127 @@
+[
+  {
+    "key": "BOD_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": true,
+    "class_c_reference": {
+      "max": 7
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "DO_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": true,
+    "class_c_reference": {
+      "min": 5
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "fecal_coliform_MPN_100mL",
+    "unit": "MPN/100 mL",
+    "exam_parameter": false,
+    "class_c_reference": {
+      "max": 200
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "pH",
+    "unit": "pH units",
+    "exam_parameter": true,
+    "class_c_reference": {
+      "min": 6.5,
+      "max": 9
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "ammonia_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": false,
+    "class_c_reference": {
+      "max": 0.06
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "nitrate_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": true,
+    "class_c_reference": {
+      "max": 7
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "inorganic_phosphate_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": true,
+    "class_c_reference": {
+      "max": 0.025
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "COD_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": true,
+    "class_c_reference": null,
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "turbidity_NTU",
+    "unit": "NTU",
+    "exam_parameter": true,
+    "class_c_reference": null,
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "temperature_C",
+    "unit": "°C",
+    "exam_parameter": true,
+    "class_c_reference": null,
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "TSS_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": false,
+    "class_c_reference": {
+      "max": 80
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "chloride_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": false,
+    "class_c_reference": {
+      "max": 350
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  },
+  {
+    "key": "oil_grease_mg_L",
+    "unit": "mg/L",
+    "exam_parameter": false,
+    "class_c_reference": {
+      "max": 2
+    },
+    "source": "https://llda.gov.ph/wp-content/uploads/dox/waterqualityrpt/2024/4Q%202024%20WQR.pdf",
+    "source_page": 4
+  }
+]

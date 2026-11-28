@@ -93,7 +93,9 @@ The [consolidated research package](public/data/Laguna_Lake_Consolidated_Researc
 | January to June 2026 | Monthly station readings for BOD and DO | 192 |
 | 2025 | Lake-wide annual BOD average | 1 |
 
-The app loads the consolidated measurement JSON as its source. The standalone [Q4 2024 audit JSON](public/data/water_quality_audited_2024_Q4.json) contains the same 225 populated values. Chemical oxygen demand (COD), turbidity, and temperature appear in the parameter list but have no bundled numeric measurements.
+The app loads the consolidated lake measurements and the [river station package](public/data/River_Stations_Data/README.md). The standalone [Q4 2024 audit JSON](public/data/water_quality_audited_2024_Q4.json) contains the same 225 populated lake values. Chemical oxygen demand (COD), turbidity, and temperature appear in the lake parameter list and have no bundled numeric measurements.
+
+The river package lists 37 Q4 stations and contains reported results for 36 stations from October through December 2024. Explore shows river locations as purple R markers, the station menus group Lake stations and River stations, and Historical Trends includes river readings. Historical upstream locations 4U and 5U appear on the map and have no Q4 readings. Research summarizes parameter coverage and the available Class C comparisons and provides the source files. The river readings are a single-pass transcription, and mapped locations use unverified historical coordinates. Saran, Binangonan, and Tanay 22B can be reviewed in Research and Historical Trends without placing pins at uncertain locations.
 
 The package is a partial historical extraction. The source inventory includes reports with no extracted readings. Q4 2024 readings are flagged for recheck, and the 2023 Q4, 2025 Q1, and 2026 monthly transcriptions require a second review. Reported qualifiers remain intact, and missing or censored measurements are never treated as zero. Annual BOD averages are displayed separately from station-month readings.
 
